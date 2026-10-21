@@ -1,0 +1,23 @@
+[package]
+name = "inferrum"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "A typed DAG decision engine that derives new facts"
+readme = "README.md"
+publish = false
+
+[features]
+default = []
+visualization = []
+
+[[example]]
+name = "bonus"
+required-features = ["visualization"]
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[lints.clippy]
+all = "warn"

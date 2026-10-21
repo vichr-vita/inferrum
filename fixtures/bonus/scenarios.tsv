@@ -1,0 +1,15 @@
+employee	purpose	expected_bonus_cents	actual_bonus_cents	review_required
+E01	Exceptional specialist	1049000	1049000	false
+E02	Budget caps manager bonus	600000	600000	false
+E03	Finance approval pending	0	0	true
+E04	Performance exactly 50	0	0	false
+E05	Performance just above 50	741000	741000	false
+E06	Tenure below 12 months	0	0	false
+E07	Inactive employee	0	0	false
+E08	Training incomplete	0	0	false
+E09	Disciplinary hold	0	0	false
+E10	Company target missed	587000	587000	false
+E11	Exactly finance threshold	200000	200000	false
+E12	One cent above finance threshold	0	0	true
+E13	Manager approval pending	0	0	true
+E14	Zero allocated budget	0	0	false

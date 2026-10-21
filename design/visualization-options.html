@@ -1,0 +1,929 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inferrum | Visualization options</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif;background:#000;color:#fff;line-height:1.5}
+*{box-sizing:border-box}body{margin:0}main{max-width:1500px;margin:auto;padding:28px clamp(16px,3vw,48px) 64px}a{color:#74dfd0;text-decoration-thickness:1px;text-underline-offset:4px;overflow-wrap:anywhere}a:focus-visible,summary:focus-visible{outline:2px solid #74dfd0;outline-offset:3px}h1{font-size:26px;margin:0;font-weight:600;letter-spacing:-.7px}h2{font-size:25px;margin:0 0 6px}h3{font-size:19px;margin:0 0 12px}h4{font-size:14px;margin:24px 0 8px}p{margin:8px 0 16px}header{display:flex;justify-content:space-between;gap:24px;align-items:center;padding-bottom:22px;border-bottom:1px solid #555}nav{display:flex;gap:24px;flex-wrap:wrap}nav a{display:inline-flex;align-items:center;min-height:44px}.intro{margin:22px 0 40px;max-width:800px}section{padding:30px 0 48px;border-top:1px solid #555;scroll-margin-top:16px}.option-title{display:flex;gap:16px;align-items:baseline}.option-letter{color:#74dfd0;font-family:ui-monospace,monospace;font-size:24px}.option-note{max-width:830px;margin-bottom:24px}.toolbar{display:flex;gap:12px 30px;flex-wrap:wrap;padding:12px 0;border-block:1px solid #333;margin-bottom:20px;font-size:14px}.workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,320px);gap:28px}.workspace>*{min-width:0}.diagram{width:100%;align-self:start}svg{display:block;width:100%;height:auto}aside{border-left:1px solid #555;padding-left:22px;align-self:start}.selected{color:#74dfd0}.amount{font-size:30px;letter-spacing:-1px;margin:8px 0 18px;font-variant-numeric:tabular-nums}.fact-list{padding:0;list-style:none;margin:0}.fact-list li{padding:8px 0;border-bottom:1px solid #292929;display:flex;justify-content:space-between;gap:12px;align-items:baseline}.fact-list span,.fact-list strong{flex:0 1 auto;text-align:right;overflow-wrap:anywhere}code,pre,.rule-number{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}code{font-size:12px;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;margin:16px 0;padding:16px 0;border-block:1px solid #333;font-size:12px}pre code{font-size:inherit}.legend{display:flex;flex-wrap:wrap;gap:8px 24px;font-size:13px;margin:14px 0}.legend span{display:inline-flex;align-items:center;gap:6px}.line{width:25px;height:1px;background:#aaa}.square{width:12px;height:12px;border:1px solid #fff}.circle{width:15px;height:11px;border:1px solid #fff;border-radius:50%}.focus .workspace{grid-template-columns:minmax(0,1.3fr) minmax(250px,1fr)}.warning{color:#f0b36c}.trace-line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;border-bottom:1px solid #333;padding:14px 0}.trace-line b{overflow-wrap:anywhere}.fact-result{margin-top:24px;border-top:2px solid #74dfd0;padding-top:14px}.catalog-layout{display:grid;grid-template-columns:180px minmax(0,1fr);gap:28px}.index{align-self:start}.index p{font-size:13px}.catalog{min-width:0}details{border-bottom:1px solid #444}summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:30px minmax(0,1fr) minmax(85px,160px);gap:12px;padding:16px 0;min-height:48px;align-items:baseline}summary::-webkit-details-marker{display:none}summary b{font:500 14px ui-monospace,SFMono-Regular,monospace;overflow-wrap:anywhere}summary small{display:block;font:12px ui-monospace,monospace;margin-top:4px;overflow-wrap:anywhere}.rule-number{font-size:12px}.catalog-value{text-align:right;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;font-size:14px}details[open] summary{color:#74dfd0}.function-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:24px;padding-bottom:24px}.function-body p{font-size:14px}.function-body pre{margin:0}.mobile-graph{display:none}.mobile-rule{padding:16px 0;border-bottom:1px solid #555}.mobile-rule>a{font:14px ui-monospace,monospace;display:inline-flex;align-items:center;min-height:44px}.arrow{font-size:12px;margin:8px 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:12px;border-bottom:1px solid #333;overflow-wrap:anywhere}thead th{font-weight:500}td:nth-child(3){font-variant-numeric:tabular-nums}.source-note{font-size:13px;max-width:900px}.compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:28px 0 40px}.compare a{font-size:18px}.compare p{font-size:14px;margin:6px 0}footer{border-top:1px solid #555;padding-top:20px}@media(max-width:1000px){.workspace,.focus .workspace{grid-template-columns:minmax(0,1fr)}aside{border-left:0;border-top:1px solid #555;padding:20px 0 0}.catalog-layout{grid-template-columns:minmax(0,1fr)}.index{display:none}}@media(max-width:700px){header{align-items:start;flex-direction:column;gap:8px}nav{gap:20px}main{padding-top:18px}.compare{grid-template-columns:1fr;gap:16px}.desktop-graph{display:none}.mobile-graph{display:block;padding-left:22px;margin:0}.function-body{grid-template-columns:minmax(0,1fr);gap:8px}summary{grid-template-columns:22px minmax(0,1fr);gap:8px}.catalog-value{grid-column:2;text-align:left}.toolbar{gap:6px 16px}.amount{font-size:26px}h2{font-size:22px}table thead{display:none}table,tbody,tr,th,td{display:block;width:100%}tr{display:grid;grid-template-columns:48px minmax(0,1fr);border-bottom:1px solid #555;padding:10px 0}th,td{border:0;padding:4px 0}td:nth-child(n+3){grid-column:2}.fact-list li{flex-wrap:wrap;gap:4px 12px}.fact-list li code{flex:1 1 160px}.fact-list li span,.fact-list li strong{text-align:left}}
+</style></head><body><main>
+<header><h1>Inferrum</h1><nav aria-label="Design options"><a href="#option-a">A / Map</a><a href="#option-b">B / Trace</a><a href="#option-c">C / Functions</a></nav></header>
+<div class="intro"><p>Three static viewer options. All use the same executed bonus ruleset.</p><p>26 functions · 14 input facts · 26 possible new facts · 14 synthetic cases</p></div>
+<div class="compare"><div><a href="#option-a">A / Ruleset map</a><p>See the whole dependency graph beside one function.</p></div><div><a href="#option-b">B / Fact trace</a><p>Explain one outcome through its inputs and rules.</p></div><div><a href="#option-c">C / Functions first</a><p>Read requirements, signatures, source, and results together.</p></div></div>
+<section id="option-a"><div class="option-title"><span class="option-letter">A</span><h2>Ruleset map</h2></div><p class="option-note">The full function DAG. Follow a node to its source in option C. On a phone, the same dependencies appear as ordered function entries.</p>
+<div class="toolbar"><span>Annual bonus</span><span>E01 / Exceptional specialist</span><span>26 functions</span><span>Selected: final_bonus</span></div>
+<div class="workspace"><div><div class="diagram desktop-graph"><svg
+ viewBox="0.00 0.00 877.87 975.60" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="all-graph0" class="graph" transform="scale(1 1) rotate(0) translate(7.2 968.4)">
+<title>rules</title>
+<polygon fill="#000000" stroke="none" points="-7.2,7.2 -7.2,-968.4 870.67,-968.4 870.67,7.2 -7.2,7.2"/>
+
+<g id="all-node1" class="node">
+<title>good_performance</title>
+<g id="all-a_node1"><a xlink:href="#fn-good_performance" xlink:title="BR&#45;01: Scores must be 0..100. A score above 50 passes.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="410.72,-732 278,-732 278,-687.6 410.72,-687.6 410.72,-732"/>
+<text text-anchor="middle" x="344.36" y="-711.5" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">good_performance</text>
+<text text-anchor="middle" x="344.36" y="-696.5" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">true</text>
+</a>
+</g>
+</g>
+
+<g id="all-node6" class="node">
+<title>bonus_eligible</title>
+<g id="all-a_node6"><a xlink:href="#fn-bonus_eligible" xlink:title="BR&#45;06: Require eligible employment, good performance, clear conduct, and completed training.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="256.85,-655.6 151.88,-655.6 151.88,-611.2 256.85,-611.2 256.85,-655.6"/>
+<text text-anchor="middle" x="204.36" y="-635.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">bonus_eligible</text>
+<text text-anchor="middle" x="204.36" y="-620.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">true</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge3" class="edge">
+<title>good_performance&#45;&gt;bonus_eligible</title>
+<g id="all-a_edge3"><a xlink:title="good_performance">
+<path fill="none" stroke="#777777" d="M303.87,-687.28C287.47,-678.57 268.43,-668.45 251.42,-659.41"/>
+<polygon fill="#777777" stroke="#777777" points="252.91,-657.62 246.1,-656.58 250.77,-661.64 252.91,-657.62"/>
+</a>
+</g>
+</g>
+
+<g id="all-node16" class="node">
+<title>retention_award</title>
+<g id="all-a_node16"><a xlink:href="#fn-retention_award" xlink:title="BR&#45;16: Add 75,000 cents for critical skills with good performance.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="395.1,-655.6 279.62,-655.6 279.62,-611.2 395.1,-611.2 395.1,-655.6"/>
+<text text-anchor="middle" x="337.36" y="-635.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">retention_award</text>
+<text text-anchor="middle" x="337.36" y="-620.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">75,000 c</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge13" class="edge">
+<title>good_performance&#45;&gt;retention_award</title>
+<g id="all-a_edge13"><a xlink:title="good_performance">
+<path fill="none" stroke="#777777" d="M342.34,-687.28C341.64,-679.88 340.85,-671.46 340.1,-663.55"/>
+<polygon fill="#777777" stroke="#777777" points="342.4,-663.64 339.52,-657.38 337.87,-664.06 342.4,-663.64"/>
+</a>
+</g>
+</g>
+
+<g id="all-node2" class="node">
+<title>exceptional_performance</title>
+<g id="all-a_node2"><a xlink:href="#fn-exceptional_performance" xlink:title="BR&#45;02: A score of at least 90 is exceptional.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="767.85,-961.2 596.88,-961.2 596.88,-916.8 767.85,-916.8 767.85,-961.2"/>
+<text text-anchor="middle" x="682.36" y="-940.7" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">exceptional_performance</text>
+<text text-anchor="middle" x="682.36" y="-925.7" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">true</text>
+</a>
+</g>
+</g>
+
+<g id="all-node10" class="node">
+<title>performance_factor</title>
+<g id="all-a_node10"><a xlink:href="#fn-performance_factor" xlink:title="BR&#45;10: Exceptional performance multiplies the base by 150%, otherwise 100%.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="753.6,-884.8 617.12,-884.8 617.12,-840.4 753.6,-840.4 753.6,-884.8"/>
+<text text-anchor="middle" x="685.36" y="-864.3" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">performance_factor</text>
+<text text-anchor="middle" x="685.36" y="-849.3" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">15,000</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge5" class="edge">
+<title>exceptional_performance&#45;&gt;performance_factor</title>
+<g id="all-a_edge5"><a xlink:title="exceptional_performance">
+<path fill="none" stroke="#777777" d="M683.23,-916.48C683.53,-909.08 683.87,-900.66 684.18,-892.75"/>
+<polygon fill="#777777" stroke="#777777" points="686.44,-893.17 684.43,-886.58 681.9,-892.99 686.44,-893.17"/>
+</a>
+</g>
+</g>
+
+<g id="all-node3" class="node">
+<title>tenure_eligible</title>
+<g id="all-a_node3"><a xlink:href="#fn-tenure_eligible" xlink:title="BR&#45;03: At least 12 months of service are required.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="243.6,-808.4 137.12,-808.4 137.12,-764 243.6,-764 243.6,-808.4"/>
+<text text-anchor="middle" x="190.36" y="-787.9" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">tenure_eligible</text>
+<text text-anchor="middle" x="190.36" y="-772.9" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">true</text>
+</a>
+</g>
+</g>
+
+<g id="all-node5" class="node">
+<title>employment_eligible</title>
+<g id="all-a_node5"><a xlink:href="#fn-employment_eligible" xlink:title="BR&#45;05: Employment must be active and tenure eligible.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="261.97,-732 118.75,-732 118.75,-687.6 261.97,-687.6 261.97,-732"/>
+<text text-anchor="middle" x="190.36" y="-711.5" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">employment_eligible</text>
+<text text-anchor="middle" x="190.36" y="-696.5" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">true</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge1" class="edge">
+<title>tenure_eligible&#45;&gt;employment_eligible</title>
+<g id="all-a_edge1"><a xlink:title="tenure_eligible">
+<path fill="none" stroke="#777777" d="M190.36,-763.68C190.36,-756.28 190.36,-747.86 190.36,-739.95"/>
+<polygon fill="#777777" stroke="#777777" points="192.64,-740.28 190.36,-733.78 188.09,-740.28 192.64,-740.28"/>
+</a>
+</g>
+</g>
+
+<g id="all-node4" class="node">
+<title>conduct_clear</title>
+<g id="all-a_node4"><a xlink:href="#fn-conduct_clear" xlink:title="BR&#45;04: An active disciplinary hold blocks eligibility.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="102.72,-732 0,-732 0,-687.6 102.72,-687.6 102.72,-732"/>
+<text text-anchor="middle" x="51.36" y="-711.5" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">conduct_clear</text>
+<text text-anchor="middle" x="51.36" y="-696.5" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">true</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge4" class="edge">
+<title>conduct_clear&#45;&gt;bonus_eligible</title>
+<g id="all-a_edge4"><a xlink:title="conduct_clear">
+<path fill="none" stroke="#777777" d="M95.61,-687.28C113.61,-678.53 134.53,-668.36 153.18,-659.29"/>
+<polygon fill="#777777" stroke="#777777" points="153.73,-661.55 158.58,-656.66 151.74,-657.46 153.73,-661.55"/>
+</a>
+</g>
+</g>
+
+<g id="all-edge2" class="edge">
+<title>employment_eligible&#45;&gt;bonus_eligible</title>
+<g id="all-a_edge2"><a xlink:title="employment_eligible">
+<path fill="none" stroke="#777777" d="M194.41,-687.28C195.8,-679.88 197.39,-671.46 198.87,-663.55"/>
+<polygon fill="#777777" stroke="#777777" points="201.07,-664.17 200.04,-657.36 196.6,-663.33 201.07,-664.17"/>
+</a>
+</g>
+</g>
+
+<g id="all-node18" class="node">
+<title>eligible_bonus</title>
+<g id="all-a_node18"><a xlink:href="#fn-eligible_bonus" xlink:title="BR&#45;18: Ineligible employees receive a zero proposed payment.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="388.85,-502.8 283.88,-502.8 283.88,-458.4 388.85,-458.4 388.85,-502.8"/>
+<text text-anchor="middle" x="336.36" y="-482.3" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">eligible_bonus</text>
+<text text-anchor="middle" x="336.36" y="-467.3" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">1,049,000 c</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge17" class="edge">
+<title>bonus_eligible&#45;&gt;eligible_bonus</title>
+<g id="all-a_edge17"><a xlink:title="bonus_eligible">
+<path fill="none" stroke="#777777" d="M223.27,-610.79C246.7,-584.03 286.64,-538.4 312.25,-509.15"/>
+<polygon fill="#777777" stroke="#777777" points="313.92,-510.69 316.49,-504.3 310.49,-507.7 313.92,-510.69"/>
+</a>
+</g>
+</g>
+
+<g id="all-node7" class="node">
+<title>role_rate</title>
+<g id="all-a_node7"><a xlink:href="#fn-role_rate" xlink:title="BR&#45;07: Base rates are 5% for clerks, 7% for specialists, and 8% for managers.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="855.35,-961.2 783.38,-961.2 783.38,-916.8 855.35,-916.8 855.35,-961.2"/>
+<text text-anchor="middle" x="819.36" y="-940.7" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">role_rate</text>
+<text text-anchor="middle" x="819.36" y="-925.7" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">700</text>
+</a>
+</g>
+</g>
+
+<g id="all-node11" class="node">
+<title>base_bonus</title>
+<g id="all-a_node11"><a xlink:href="#fn-base_bonus" xlink:title="BR&#45;11: Multiply annual salary by the role rate.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="863.47,-884.8 771.25,-884.8 771.25,-840.4 863.47,-840.4 863.47,-884.8"/>
+<text text-anchor="middle" x="817.36" y="-864.3" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">base_bonus</text>
+<text text-anchor="middle" x="817.36" y="-849.3" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">560,000 c</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge6" class="edge">
+<title>role_rate&#45;&gt;base_bonus</title>
+<g id="all-a_edge6"><a xlink:title="role_rate_bps">
+<path fill="none" stroke="#777777" d="M818.78,-916.48C818.58,-909.08 818.36,-900.66 818.14,-892.75"/>
+<polygon fill="#777777" stroke="#777777" points="820.43,-893.02 817.98,-886.58 815.88,-893.14 820.43,-893.02"/>
+</a>
+</g>
+</g>
+
+<g id="all-node8" class="node">
+<title>department_factor</title>
+<g id="all-a_node8"><a xlink:href="#fn-department_factor" xlink:title="BR&#45;08: Department factors are 110% engineering, 120% sales, and 100% operations.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="665.85,-808.4 536.88,-808.4 536.88,-764 665.85,-764 665.85,-808.4"/>
+<text text-anchor="middle" x="601.36" y="-787.9" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">department_factor</text>
+<text text-anchor="middle" x="601.36" y="-772.9" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">11,000</text>
+</a>
+</g>
+</g>
+
+<g id="all-node13" class="node">
+<title>department_bonus</title>
+<g id="all-a_node13"><a xlink:href="#fn-department_bonus" xlink:title="BR&#45;13: Apply the department factor after performance.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="742.35,-732 610.38,-732 610.38,-687.6 742.35,-687.6 742.35,-732"/>
+<text text-anchor="middle" x="676.36" y="-711.5" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">department_bonus</text>
+<text text-anchor="middle" x="676.36" y="-696.5" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">924,000 c</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge10" class="edge">
+<title>department_factor&#45;&gt;department_bonus</title>
+<g id="all-a_edge10"><a xlink:title="department_factor_bps">
+<path fill="none" stroke="#777777" d="M623.05,-763.68C631.29,-755.51 640.78,-746.1 649.44,-737.5"/>
+<polygon fill="#777777" stroke="#777777" points="650.63,-739.53 653.64,-733.34 647.42,-736.3 650.63,-739.53"/>
+</a>
+</g>
+</g>
+
+<g id="all-node9" class="node">
+<title>company_factor</title>
+<g id="all-a_node9"><a xlink:href="#fn-company_factor" xlink:title="BR&#45;09: Company factor is 100% when its target is met, otherwise 50%.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="594.1,-732 478.62,-732 478.62,-687.6 594.1,-687.6 594.1,-732"/>
+<text text-anchor="middle" x="536.36" y="-711.5" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">company_factor</text>
+<text text-anchor="middle" x="536.36" y="-696.5" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">10,000</text>
+</a>
+</g>
+</g>
+
+<g id="all-node14" class="node">
+<title>company_bonus</title>
+<g id="all-a_node14"><a xlink:href="#fn-company_bonus" xlink:title="BR&#45;14: Apply the company factor after the department factor.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="646.6,-655.6 528.12,-655.6 528.12,-611.2 646.6,-611.2 646.6,-655.6"/>
+<text text-anchor="middle" x="587.36" y="-635.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">company_bonus</text>
+<text text-anchor="middle" x="587.36" y="-620.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">924,000 c</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge12" class="edge">
+<title>company_factor&#45;&gt;company_bonus</title>
+<g id="all-a_edge12"><a xlink:title="company_factor_bps">
+<path fill="none" stroke="#777777" d="M551.11,-687.28C556.5,-679.41 562.68,-670.4 568.39,-662.08"/>
+<polygon fill="#777777" stroke="#777777" points="569.99,-663.77 571.79,-657.12 566.23,-661.19 569.99,-663.77"/>
+</a>
+</g>
+</g>
+
+<g id="all-node12" class="node">
+<title>performance_bonus</title>
+<g id="all-a_node12"><a xlink:href="#fn-performance_bonus" xlink:title="BR&#45;12: Apply the performance factor to the base bonus.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="821.1,-808.4 681.62,-808.4 681.62,-764 821.1,-764 821.1,-808.4"/>
+<text text-anchor="middle" x="751.36" y="-787.9" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">performance_bonus</text>
+<text text-anchor="middle" x="751.36" y="-772.9" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">840,000 c</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge8" class="edge">
+<title>performance_factor&#45;&gt;performance_bonus</title>
+<g id="all-a_edge8"><a xlink:title="performance_factor_bps">
+<path fill="none" stroke="#777777" d="M704.45,-840.08C711.56,-832.06 719.73,-822.85 727.24,-814.39"/>
+<polygon fill="#777777" stroke="#777777" points="728.7,-816.18 731.31,-809.8 725.29,-813.16 728.7,-816.18"/>
+</a>
+</g>
+</g>
+
+<g id="all-edge7" class="edge">
+<title>base_bonus&#45;&gt;performance_bonus</title>
+<g id="all-a_edge7"><a xlink:title="base_bonus_cents">
+<path fill="none" stroke="#777777" d="M798.27,-840.08C791.16,-832.06 782.99,-822.85 775.48,-814.39"/>
+<polygon fill="#777777" stroke="#777777" points="777.43,-813.16 771.41,-809.8 774.02,-816.18 777.43,-813.16"/>
+</a>
+</g>
+</g>
+
+<g id="all-edge9" class="edge">
+<title>performance_bonus&#45;&gt;department_bonus</title>
+<g id="all-a_edge9"><a xlink:title="performance_bonus_cents">
+<path fill="none" stroke="#777777" d="M729.67,-763.68C721.43,-755.51 711.94,-746.1 703.28,-737.5"/>
+<polygon fill="#777777" stroke="#777777" points="705.3,-736.3 699.08,-733.34 702.09,-739.53 705.3,-736.3"/>
+</a>
+</g>
+</g>
+
+<g id="all-edge11" class="edge">
+<title>department_bonus&#45;&gt;company_bonus</title>
+<g id="all-a_edge11"><a xlink:title="department_bonus_cents">
+<path fill="none" stroke="#777777" d="M650.62,-687.28C640.75,-679.03 629.37,-669.52 619.01,-660.86"/>
+<polygon fill="#777777" stroke="#777777" points="620.65,-659.27 614.21,-656.84 617.73,-662.76 620.65,-659.27"/>
+</a>
+</g>
+</g>
+
+<g id="all-node17" class="node">
+<title>proposed_bonus</title>
+<g id="all-a_node17"><a xlink:href="#fn-proposed_bonus" xlink:title="BR&#45;17: Sum the company&#45;adjusted bonus and both awards.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="458.97,-579.2 339.75,-579.2 339.75,-534.8 458.97,-534.8 458.97,-579.2"/>
+<text text-anchor="middle" x="399.36" y="-558.7" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">proposed_bonus</text>
+<text text-anchor="middle" x="399.36" y="-543.7" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">1,049,000 c</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge14" class="edge">
+<title>company_bonus&#45;&gt;proposed_bonus</title>
+<g id="all-a_edge14"><a xlink:title="company_bonus_cents">
+<path fill="none" stroke="#777777" d="M532.73,-610.78C510.43,-601.95 484.51,-591.7 461.49,-582.59"/>
+<polygon fill="#777777" stroke="#777777" points="462.41,-580.51 455.53,-580.23 460.74,-584.74 462.41,-580.51"/>
+</a>
+</g>
+</g>
+
+<g id="all-node15" class="node">
+<title>tenure_award</title>
+<g id="all-a_node15"><a xlink:href="#fn-tenure_award" xlink:title="BR&#45;15: Add 50,000 cents for at least 36 months of service.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="511.97,-655.6 410.75,-655.6 410.75,-611.2 511.97,-611.2 511.97,-655.6"/>
+<text text-anchor="middle" x="461.36" y="-635.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">tenure_award</text>
+<text text-anchor="middle" x="461.36" y="-620.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">50,000 c</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge15" class="edge">
+<title>tenure_award&#45;&gt;proposed_bonus</title>
+<g id="all-a_edge15"><a xlink:title="tenure_award_cents">
+<path fill="none" stroke="#777777" d="M443.43,-610.88C436.74,-602.86 429.07,-593.65 422.02,-585.19"/>
+<polygon fill="#777777" stroke="#777777" points="424.13,-584.17 418.22,-580.63 420.64,-587.08 424.13,-584.17"/>
+</a>
+</g>
+</g>
+
+<g id="all-edge16" class="edge">
+<title>retention_award&#45;&gt;proposed_bonus</title>
+<g id="all-a_edge16"><a xlink:title="retention_award_cents">
+<path fill="none" stroke="#777777" d="M355.29,-610.88C361.98,-602.86 369.65,-593.65 376.7,-585.19"/>
+<polygon fill="#777777" stroke="#777777" points="378.08,-587.08 380.5,-580.63 374.59,-584.17 378.08,-587.08"/>
+</a>
+</g>
+</g>
+
+<g id="all-edge18" class="edge">
+<title>proposed_bonus&#45;&gt;eligible_bonus</title>
+<g id="all-a_edge18"><a xlink:title="proposed_bonus_cents">
+<path fill="none" stroke="#777777" d="M381.14,-534.48C374.35,-526.46 366.55,-517.25 359.38,-508.79"/>
+<polygon fill="#777777" stroke="#777777" points="361.46,-507.72 355.52,-504.23 357.98,-510.66 361.46,-507.72"/>
+</a>
+</g>
+</g>
+
+<g id="all-node19" class="node">
+<title>capped_bonus</title>
+<g id="all-a_node19"><a xlink:href="#fn-capped_bonus" xlink:title="BR&#45;19: Cap the bonus at the employee&#45;specific budget allocation.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="389.97,-426.4 282.75,-426.4 282.75,-382 389.97,-382 389.97,-426.4"/>
+<text text-anchor="middle" x="336.36" y="-405.9" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">capped_bonus</text>
+<text text-anchor="middle" x="336.36" y="-390.9" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">1,049,000 c</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge19" class="edge">
+<title>eligible_bonus&#45;&gt;capped_bonus</title>
+<g id="all-a_edge19"><a xlink:title="eligible_bonus_cents">
+<path fill="none" stroke="#777777" d="M336.36,-458.08C336.36,-450.68 336.36,-442.26 336.36,-434.35"/>
+<polygon fill="#777777" stroke="#777777" points="338.64,-434.68 336.36,-428.18 334.09,-434.68 338.64,-434.68"/>
+</a>
+</g>
+</g>
+
+<g id="all-node20" class="node">
+<title>finance_required</title>
+<g id="all-a_node20"><a xlink:href="#fn-finance_required" xlink:title="BR&#45;20: Finance approval is required above 200,000 cents, strictly.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="395.97,-350 276.75,-350 276.75,-305.6 395.97,-305.6 395.97,-350"/>
+<text text-anchor="middle" x="336.36" y="-329.5" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">finance_required</text>
+<text text-anchor="middle" x="336.36" y="-314.5" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">true</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge20" class="edge">
+<title>capped_bonus&#45;&gt;finance_required</title>
+<g id="all-a_edge20"><a xlink:title="capped_bonus_cents">
+<path fill="none" stroke="#777777" d="M336.36,-381.68C336.36,-374.28 336.36,-365.86 336.36,-357.95"/>
+<polygon fill="#777777" stroke="#777777" points="338.64,-358.28 336.36,-351.78 334.09,-358.28 338.64,-358.28"/>
+</a>
+</g>
+</g>
+
+<g id="all-node22" class="node">
+<title>final_bonus</title>
+<g id="all-a_node22"><a xlink:href="#fn-final_bonus" xlink:title="BR&#45;22: Emit the capped bonus if approvals pass, otherwise zero.">
+<polygon fill="#000000" stroke="#74dfd0" stroke-width="1.5" points="321.97,-197.2 232.75,-197.2 232.75,-152.8 321.97,-152.8 321.97,-197.2"/>
+<text text-anchor="middle" x="277.36" y="-176.7" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">final_bonus</text>
+<text text-anchor="middle" x="277.36" y="-161.7" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">1,049,000 c</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge23" class="edge">
+<title>capped_bonus&#45;&gt;final_bonus</title>
+<g id="all-a_edge23"><a xlink:title="capped_bonus_cents">
+<path fill="none" stroke="#777777" d="M297.95,-381.64C286.53,-373.27 275.25,-362.63 268.36,-350 243.42,-304.25 256.12,-241.29 267.09,-205"/>
+<polygon fill="#777777" stroke="#777777" points="269.16,-206 268.94,-199.11 264.82,-204.63 269.16,-206"/>
+</a>
+</g>
+</g>
+
+<g id="all-node24" class="node">
+<title>review_required</title>
+<g id="all-a_node24"><a xlink:href="#fn-review_required" xlink:title="BR&#45;24: Emit approval_pending only for a positive bonus awaiting approval.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="468.72,-197.2 354,-197.2 354,-152.8 468.72,-152.8 468.72,-197.2"/>
+<text text-anchor="middle" x="411.36" y="-176.7" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">review_required</text>
+<text text-anchor="middle" x="411.36" y="-161.7" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">absent</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge25" class="edge">
+<title>capped_bonus&#45;&gt;review_required</title>
+<g id="all-a_edge25"><a xlink:title="capped_bonus_cents">
+<path fill="none" stroke="#777777" d="M374.77,-381.64C386.19,-373.27 397.47,-362.63 404.36,-350 429.18,-304.47 423.88,-241.84 417.68,-205.46"/>
+<polygon fill="#777777" stroke="#777777" points="419.94,-205.16 416.54,-199.17 415.46,-205.97 419.94,-205.16"/>
+</a>
+</g>
+</g>
+
+<g id="all-node21" class="node">
+<title>approvals_satisfied</title>
+<g id="all-a_node21"><a xlink:href="#fn-approvals_satisfied" xlink:title="BR&#45;21: Require manager approval and finance approval when required.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="403.47,-273.6 269.25,-273.6 269.25,-229.2 403.47,-229.2 403.47,-273.6"/>
+<text text-anchor="middle" x="336.36" y="-253.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">approvals_satisfied</text>
+<text text-anchor="middle" x="336.36" y="-238.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">true</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge21" class="edge">
+<title>finance_required&#45;&gt;approvals_satisfied</title>
+<g id="all-a_edge21"><a xlink:title="finance_required">
+<path fill="none" stroke="#777777" d="M336.36,-305.28C336.36,-297.88 336.36,-289.46 336.36,-281.55"/>
+<polygon fill="#777777" stroke="#777777" points="338.64,-281.88 336.36,-275.38 334.09,-281.88 338.64,-281.88"/>
+</a>
+</g>
+</g>
+
+<g id="all-edge22" class="edge">
+<title>approvals_satisfied&#45;&gt;final_bonus</title>
+<g id="all-a_edge22"><a xlink:title="approvals_satisfied">
+<path fill="none" stroke="#777777" d="M319.29,-228.88C313.06,-221.01 305.91,-212 299.31,-203.68"/>
+<polygon fill="#777777" stroke="#777777" points="301.15,-202.34 295.33,-198.66 297.58,-205.16 301.15,-202.34"/>
+</a>
+</g>
+</g>
+
+<g id="all-edge26" class="edge">
+<title>approvals_satisfied&#45;&gt;review_required</title>
+<g id="all-a_edge26"><a xlink:title="approvals_satisfied">
+<path fill="none" stroke="#777777" d="M358.05,-228.88C366.29,-220.71 375.78,-211.3 384.44,-202.7"/>
+<polygon fill="#777777" stroke="#777777" points="385.63,-204.73 388.64,-198.54 382.42,-201.5 385.63,-204.73"/>
+</a>
+</g>
+</g>
+
+<g id="all-node23" class="node">
+<title>payment_ready</title>
+<g id="all-a_node23"><a xlink:href="#fn-payment_ready" xlink:title="BR&#45;23: Emit a payment&#45;ready fact only for a positive final bonus.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="263.6,-120.8 151.12,-120.8 151.12,-76.4 263.6,-76.4 263.6,-120.8"/>
+<text text-anchor="middle" x="207.36" y="-100.3" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">payment_ready</text>
+<text text-anchor="middle" x="207.36" y="-85.3" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">1,049,000 c</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge24" class="edge">
+<title>final_bonus&#45;&gt;payment_ready</title>
+<g id="all-a_edge24"><a xlink:title="final_bonus_cents">
+<path fill="none" stroke="#777777" d="M257.11,-152.48C249.57,-144.46 240.9,-135.25 232.94,-126.79"/>
+<polygon fill="#777777" stroke="#777777" points="234.71,-125.35 228.6,-122.17 231.4,-128.47 234.71,-125.35"/>
+</a>
+</g>
+</g>
+
+<g id="all-node25" class="node">
+<title>total_compensation</title>
+<g id="all-a_node25"><a xlink:href="#fn-total_compensation" xlink:title="BR&#45;25: Total compensation is annual salary plus the final bonus.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="415.6,-120.8 279.12,-120.8 279.12,-76.4 415.6,-76.4 415.6,-120.8"/>
+<text text-anchor="middle" x="347.36" y="-100.3" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">total_compensation</text>
+<text text-anchor="middle" x="347.36" y="-85.3" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">9,049,000 c</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge27" class="edge">
+<title>final_bonus&#45;&gt;total_compensation</title>
+<g id="all-a_edge27"><a xlink:title="final_bonus_cents">
+<path fill="none" stroke="#777777" d="M297.61,-152.48C305.15,-144.46 313.82,-135.25 321.78,-126.79"/>
+<polygon fill="#777777" stroke="#777777" points="323.32,-128.47 326.12,-122.17 320.01,-125.35 323.32,-128.47"/>
+</a>
+</g>
+</g>
+
+<g id="all-node26" class="node">
+<title>payment_reference</title>
+<g id="all-a_node26"><a xlink:href="#fn-payment_reference" xlink:title="BR&#45;26: Derive a reference from employee ID and payment cents only when payment is ready.">
+<polygon fill="#000000" stroke="#777777" stroke-width="1.5" points="283.85,-44.4 130.88,-44.4 130.88,0 283.85,0 283.85,-44.4"/>
+<text text-anchor="middle" x="207.36" y="-23.9" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">payment_reference</text>
+<text text-anchor="middle" x="207.36" y="-8.9" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">BONUS&#45;E01&#45;1049000</text>
+</a>
+</g>
+</g>
+
+<g id="all-edge28" class="edge">
+<title>payment_ready&#45;&gt;payment_reference</title>
+<g id="all-a_edge28"><a xlink:title="payment_ready_cents">
+<path fill="none" stroke="#777777" d="M207.36,-76.08C207.36,-68.68 207.36,-60.26 207.36,-52.35"/>
+<polygon fill="#777777" stroke="#777777" points="209.64,-52.68 207.36,-46.18 205.09,-52.68 209.64,-52.68"/>
+</a>
+</g>
+</g>
+</g>
+</svg>
+</div><ol class="mobile-graph" aria-label="All function dependencies"><li class="mobile-rule"><a href="#fn-good_performance">good_performance()</a><ul class="fact-list"><li><code>performance_score</code><span>94</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>good_performance</code><strong>true</strong></li></ul></li><li class="mobile-rule"><a href="#fn-exceptional_performance">exceptional_performance()</a><ul class="fact-list"><li><code>performance_score</code><span>94</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>exceptional_performance</code><strong>true</strong></li></ul></li><li class="mobile-rule"><a href="#fn-tenure_eligible">tenure_eligible()</a><ul class="fact-list"><li><code>tenure_months</code><span>48</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>tenure_eligible</code><strong>true</strong></li></ul></li><li class="mobile-rule"><a href="#fn-conduct_clear">conduct_clear()</a><ul class="fact-list"><li><code>disciplinary_hold</code><span>false</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>conduct_clear</code><strong>true</strong></li></ul></li><li class="mobile-rule"><a href="#fn-employment_eligible">employment_eligible()</a><ul class="fact-list"><li><code>active</code><span>true</span></li><li><code>tenure_eligible</code><span>true</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>employment_eligible</code><strong>true</strong></li></ul></li><li class="mobile-rule"><a href="#fn-bonus_eligible">bonus_eligible()</a><ul class="fact-list"><li><code>employment_eligible</code><span>true</span></li><li><code>good_performance</code><span>true</span></li><li><code>conduct_clear</code><span>true</span></li><li><code>training_complete</code><span>true</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>bonus_eligible</code><strong>true</strong></li></ul></li><li class="mobile-rule"><a href="#fn-role_rate">role_rate()</a><ul class="fact-list"><li><code>role</code><span>Specialist</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>role_rate_bps</code><strong>700</strong></li></ul></li><li class="mobile-rule"><a href="#fn-department_factor">department_factor()</a><ul class="fact-list"><li><code>department</code><span>Engineering</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>department_factor_bps</code><strong>11,000</strong></li></ul></li><li class="mobile-rule"><a href="#fn-company_factor">company_factor()</a><ul class="fact-list"><li><code>company_target_met</code><span>true</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>company_factor_bps</code><strong>10,000</strong></li></ul></li><li class="mobile-rule"><a href="#fn-performance_factor">performance_factor()</a><ul class="fact-list"><li><code>exceptional_performance</code><span>true</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>performance_factor_bps</code><strong>15,000</strong></li></ul></li><li class="mobile-rule"><a href="#fn-base_bonus">base_bonus()</a><ul class="fact-list"><li><code>salary_cents</code><span>8,000,000 c</span></li><li><code>role_rate_bps</code><span>700</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>base_bonus_cents</code><strong>560,000 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-performance_bonus">performance_bonus()</a><ul class="fact-list"><li><code>base_bonus_cents</code><span>560,000 c</span></li><li><code>performance_factor_bps</code><span>15,000</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>performance_bonus_cents</code><strong>840,000 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-department_bonus">department_bonus()</a><ul class="fact-list"><li><code>performance_bonus_cents</code><span>840,000 c</span></li><li><code>department_factor_bps</code><span>11,000</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>department_bonus_cents</code><strong>924,000 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-company_bonus">company_bonus()</a><ul class="fact-list"><li><code>department_bonus_cents</code><span>924,000 c</span></li><li><code>company_factor_bps</code><span>10,000</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>company_bonus_cents</code><strong>924,000 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-tenure_award">tenure_award()</a><ul class="fact-list"><li><code>tenure_months</code><span>48</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>tenure_award_cents</code><strong>50,000 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-retention_award">retention_award()</a><ul class="fact-list"><li><code>critical_skill</code><span>true</span></li><li><code>good_performance</code><span>true</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>retention_award_cents</code><strong>75,000 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-proposed_bonus">proposed_bonus()</a><ul class="fact-list"><li><code>company_bonus_cents</code><span>924,000 c</span></li><li><code>tenure_award_cents</code><span>50,000 c</span></li><li><code>retention_award_cents</code><span>75,000 c</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>proposed_bonus_cents</code><strong>1,049,000 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-eligible_bonus">eligible_bonus()</a><ul class="fact-list"><li><code>bonus_eligible</code><span>true</span></li><li><code>proposed_bonus_cents</code><span>1,049,000 c</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>eligible_bonus_cents</code><strong>1,049,000 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-capped_bonus">capped_bonus()</a><ul class="fact-list"><li><code>eligible_bonus_cents</code><span>1,049,000 c</span></li><li><code>employee_budget_cents</code><span>1,200,000 c</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>capped_bonus_cents</code><strong>1,049,000 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-finance_required">finance_required()</a><ul class="fact-list"><li><code>capped_bonus_cents</code><span>1,049,000 c</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>finance_required</code><strong>true</strong></li></ul></li><li class="mobile-rule"><a href="#fn-approvals_satisfied">approvals_satisfied()</a><ul class="fact-list"><li><code>manager_approved</code><span>true</span></li><li><code>finance_required</code><span>true</span></li><li><code>finance_approved</code><span>true</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>approvals_satisfied</code><strong>true</strong></li></ul></li><li class="mobile-rule"><a href="#fn-final_bonus">final_bonus()</a><ul class="fact-list"><li><code>approvals_satisfied</code><span>true</span></li><li><code>capped_bonus_cents</code><span>1,049,000 c</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>final_bonus_cents</code><strong>1,049,000 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-payment_ready">payment_ready()</a><ul class="fact-list"><li><code>final_bonus_cents</code><span>1,049,000 c</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>payment_ready_cents</code><strong>1,049,000 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-review_required">review_required()</a><ul class="fact-list"><li><code>capped_bonus_cents</code><span>1,049,000 c</span></li><li><code>approvals_satisfied</code><span>true</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>review_required</code><strong>absent</strong></li></ul></li><li class="mobile-rule"><a href="#fn-total_compensation">total_compensation()</a><ul class="fact-list"><li><code>salary_cents</code><span>8,000,000 c</span></li><li><code>final_bonus_cents</code><span>1,049,000 c</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>total_compensation_cents</code><strong>9,049,000 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-payment_reference">payment_reference()</a><ul class="fact-list"><li><code>employee_id</code><span>E01</span></li><li><code>payment_ready_cents</code><span>1,049,000 c</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>payment_reference</code><strong>BONUS-E01-1049000</strong></li></ul></li></ol><div class="legend"><span><i class="square"></i>Function and output value</span><span><i class="line"></i>→ Dependency</span></div></div>
+<aside><h3 class="selected">final_bonus()</h3><p>BR-22</p><p>Emit the capped bonus if approvals pass, otherwise zero.</p><h4>New fact</h4><code>final_bonus_cents</code><p class="amount">1,049,000 c</p><h4>Reads</h4><ul class="fact-list"><li><code>approvals_satisfied</code><span>true</span></li><li><code>capped_bonus_cents</code><span>1,049,000 c</span></li></ul><pre><code>pub fn final_bonus(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        FINAL,
+        if *i.get(APPROVALS)? {
+            *i.get(CAPPED)?
+        } else {
+            0
+        },
+    )
+}</code></pre><p><a href="#fn-final_bonus">Inspect function</a></p><p class="source-note">All edges show declared dependencies. Values are from E01. An absent value does not remove a dependency.</p></aside></div></section>
+<section id="option-b" class="focus"><div class="option-title"><span class="option-letter">B</span><h2>Trace a fact</h2></div><p class="option-note">E03 has an eligible bonus, but finance approval is missing. The branch produces a review fact and a zero final bonus.</p><div class="toolbar"><span>E03 / Finance approval pending</span><span>Approval branch</span><span>4 functions / 7 facts</span></div>
+<div class="workspace"><div><div class="diagram desktop-graph"><svg
+ viewBox="0.00 0.00 635.40 565.56" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="focus-graph0" class="graph" transform="scale(1 1) rotate(0) translate(7.2 558.36)">
+<title>trace</title>
+<polygon fill="#000000" stroke="none" points="-7.2,7.2 -7.2,-558.36 628.2,-558.36 628.2,7.2 -7.2,7.2"/>
+
+<g id="focus-node1" class="node">
+<title>f_approvals_satisfied</title>
+<ellipse fill="#000000" stroke="#f0b36c" cx="318" cy="-194.19" rx="94.91" ry="31.4"/>
+<text text-anchor="middle" x="318" y="-195.89" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">approvals_satisfied</text>
+<text text-anchor="middle" x="318" y="-180.89" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">false</text>
+</g>
+
+<g id="focus-node10" class="node">
+<title>final_bonus</title>
+<g id="focus-a_node10"><a xlink:href="#fn-final_bonus" xlink:title="final_bonus()">
+<polygon fill="#000000" stroke="#666666" points="238.36,-130.79 141.64,-130.79 141.64,-94.79 238.36,-94.79 238.36,-130.79"/>
+<text text-anchor="middle" x="190" y="-106.99" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">final_bonus()</text>
+</a>
+</g>
+</g>
+
+<g id="focus-edge7" class="edge">
+<title>f_approvals_satisfied&#45;&gt;final_bonus</title>
+<path fill="none" stroke="#777777" d="M274.31,-166.09C258.1,-156.03 239.96,-144.78 224.67,-135.3"/>
+<polygon fill="#777777" stroke="#777777" points="225.87,-133.37 219.15,-131.87 223.47,-137.23 225.87,-133.37"/>
+</g>
+
+<g id="focus-node11" class="node">
+<title>review_required</title>
+<g id="focus-a_node11"><a xlink:href="#fn-review_required" xlink:title="review_required()">
+<polygon fill="#000000" stroke="#666666" points="507.86,-130.79 384.14,-130.79 384.14,-94.79 507.86,-94.79 507.86,-130.79"/>
+<text text-anchor="middle" x="446" y="-106.99" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">review_required()</text>
+</a>
+</g>
+</g>
+
+<g id="focus-edge11" class="edge">
+<title>f_approvals_satisfied&#45;&gt;review_required</title>
+<path fill="none" stroke="#777777" d="M361.69,-166.09C377.9,-156.03 396.04,-144.78 411.33,-135.3"/>
+<polygon fill="#777777" stroke="#777777" points="412.53,-137.23 416.85,-131.87 410.13,-133.37 412.53,-137.23"/>
+</g>
+
+<g id="focus-node2" class="node">
+<title>f_capped_bonus_cents</title>
+<ellipse fill="#000000" stroke="#777777" cx="318" cy="-519.77" rx="103.92" ry="31.4"/>
+<text text-anchor="middle" x="318" y="-521.47" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">capped_bonus_cents</text>
+<text text-anchor="middle" x="318" y="-506.47" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">1,049,000 c</text>
+</g>
+
+<g id="focus-node8" class="node">
+<title>finance_required</title>
+<g id="focus-a_node8"><a xlink:href="#fn-finance_required" xlink:title="finance_required()">
+<polygon fill="#000000" stroke="#666666" points="382.11,-456.37 253.89,-456.37 253.89,-420.37 382.11,-420.37 382.11,-456.37"/>
+<text text-anchor="middle" x="318" y="-432.57" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">finance_required()</text>
+</a>
+</g>
+</g>
+
+<g id="focus-edge1" class="edge">
+<title>f_capped_bonus_cents&#45;&gt;finance_required</title>
+<path fill="none" stroke="#777777" d="M318,-488.3C318,-480.46 318,-472.12 318,-464.58"/>
+<polygon fill="#777777" stroke="#777777" points="320.28,-464.8 318,-458.3 315.73,-464.8 320.28,-464.8"/>
+</g>
+
+<g id="focus-edge8" class="edge">
+<title>f_capped_bonus_cents&#45;&gt;final_bonus</title>
+<path fill="none" stroke="#777777" d="M219.13,-509.92C125.78,-495.5 0,-457.58 0,-357.98 0,-357.98 0,-357.98 0,-274.58 0,-203.51 78.42,-157.4 134.5,-133.5"/>
+<polygon fill="#777777" stroke="#777777" points="135.04,-135.74 140.17,-131.14 133.29,-131.54 135.04,-135.74"/>
+</g>
+
+<g id="focus-edge10" class="edge">
+<title>f_capped_bonus_cents&#45;&gt;review_required</title>
+<path fill="none" stroke="#777777" d="M414.7,-507.94C503.38,-492.01 621,-452.96 621,-357.98 621,-357.98 621,-357.98 621,-274.58 621,-206.61 548.52,-159.53 496.85,-134.6"/>
+<polygon fill="#777777" stroke="#777777" points="497.93,-132.6 491.08,-131.88 495.99,-136.71 497.93,-132.6"/>
+</g>
+
+<g id="focus-node3" class="node">
+<title>f_final_bonus_cents</title>
+<ellipse fill="#000000" stroke="#777777" cx="190" cy="-31.4" rx="90.13" ry="31.4"/>
+<text text-anchor="middle" x="190" y="-33.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">final_bonus_cents</text>
+<text text-anchor="middle" x="190" y="-18.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">0 c</text>
+</g>
+
+<g id="focus-node4" class="node">
+<title>f_finance_approved</title>
+<ellipse fill="#000000" stroke="#f0b36c" cx="507" cy="-356.98" rx="89.07" ry="31.4"/>
+<text text-anchor="middle" x="507" y="-358.68" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">finance_approved</text>
+<text text-anchor="middle" x="507" y="-343.68" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">false</text>
+</g>
+
+<g id="focus-node9" class="node">
+<title>approvals_satisfied</title>
+<g id="focus-a_node9"><a xlink:href="#fn-approvals_satisfied" xlink:title="approvals_satisfied()">
+<polygon fill="#000000" stroke="#666666" points="389.61,-293.58 246.39,-293.58 246.39,-257.58 389.61,-257.58 389.61,-293.58"/>
+<text text-anchor="middle" x="318" y="-269.78" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">approvals_satisfied()</text>
+</a>
+</g>
+</g>
+
+<g id="focus-edge5" class="edge">
+<title>f_finance_approved&#45;&gt;approvals_satisfied</title>
+<path fill="none" stroke="#777777" d="M450.55,-332.26C423.8,-321.03 392.18,-307.74 366.53,-296.97"/>
+<polygon fill="#777777" stroke="#777777" points="367.73,-295 360.85,-294.58 365.97,-299.2 367.73,-295"/>
+</g>
+
+<g id="focus-node5" class="node">
+<title>f_finance_required</title>
+<ellipse fill="#000000" stroke="#777777" cx="318" cy="-356.98" rx="84.3" ry="31.4"/>
+<text text-anchor="middle" x="318" y="-358.68" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">finance_required</text>
+<text text-anchor="middle" x="318" y="-343.68" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">true</text>
+</g>
+
+<g id="focus-edge4" class="edge">
+<title>f_finance_required&#45;&gt;approvals_satisfied</title>
+<path fill="none" stroke="#777777" d="M318,-325.51C318,-317.67 318,-309.33 318,-301.79"/>
+<polygon fill="#777777" stroke="#777777" points="320.28,-302.01 318,-295.51 315.73,-302.01 320.28,-302.01"/>
+</g>
+
+<g id="focus-node6" class="node">
+<title>f_manager_approved</title>
+<ellipse fill="#000000" stroke="#777777" cx="121" cy="-356.98" rx="96.5" ry="31.4"/>
+<text text-anchor="middle" x="121" y="-358.68" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">manager_approved</text>
+<text text-anchor="middle" x="121" y="-343.68" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">true</text>
+</g>
+
+<g id="focus-edge3" class="edge">
+<title>f_manager_approved&#45;&gt;approvals_satisfied</title>
+<path fill="none" stroke="#777777" d="M180.64,-331.94C208.38,-320.76 241.02,-307.61 267.52,-296.93"/>
+<polygon fill="#777777" stroke="#777777" points="268.24,-299.09 273.42,-294.55 266.54,-294.87 268.24,-299.09"/>
+</g>
+
+<g id="focus-node7" class="node">
+<title>f_review_required</title>
+<ellipse fill="#000000" stroke="#f0b36c" cx="446" cy="-31.4" rx="89.07" ry="31.4"/>
+<text text-anchor="middle" x="446" y="-33.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">review_required</text>
+<text text-anchor="middle" x="446" y="-18.1" font-family="Helvetica,sans-Serif" font-size="14.00" fill="#ffffff">approval_pending</text>
+</g>
+
+<g id="focus-edge2" class="edge">
+<title>finance_required&#45;&gt;f_finance_required</title>
+<path fill="none" stroke="#777777" d="M318,-420.15C318,-413.16 318,-404.8 318,-396.5"/>
+<polygon fill="#777777" stroke="#777777" points="320.28,-396.63 318,-390.13 315.73,-396.63 320.28,-396.63"/>
+</g>
+
+<g id="focus-edge6" class="edge">
+<title>approvals_satisfied&#45;&gt;f_approvals_satisfied</title>
+<path fill="none" stroke="#777777" d="M318,-257.35C318,-250.37 318,-242.01 318,-233.71"/>
+<polygon fill="#777777" stroke="#777777" points="320.28,-233.84 318,-227.34 315.73,-233.84 320.28,-233.84"/>
+</g>
+
+<g id="focus-edge9" class="edge">
+<title>final_bonus&#45;&gt;f_final_bonus_cents</title>
+<path fill="none" stroke="#777777" d="M190,-94.56C190,-87.58 190,-79.22 190,-70.92"/>
+<polygon fill="#777777" stroke="#777777" points="192.28,-71.05 190,-64.55 187.73,-71.05 192.28,-71.05"/>
+</g>
+
+<g id="focus-edge12" class="edge">
+<title>review_required&#45;&gt;f_review_required</title>
+<path fill="none" stroke="#777777" d="M446,-94.56C446,-87.58 446,-79.22 446,-70.92"/>
+<polygon fill="#777777" stroke="#777777" points="448.28,-71.05 446,-64.55 443.73,-71.05 448.28,-71.05"/>
+</g>
+</g>
+</svg>
+</div><ol class="mobile-graph" aria-label="Approval branch dependencies"><li class="mobile-rule"><a href="#fn-finance_required">finance_required()</a><ul class="fact-list"><li><code>capped_bonus_cents</code><span>1,049,000 c</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>finance_required</code><strong>true</strong></li></ul></li><li class="mobile-rule"><a href="#fn-approvals_satisfied">approvals_satisfied()</a><ul class="fact-list"><li><code>manager_approved</code><span>true</span></li><li><code>finance_required</code><span>true</span></li><li><code>finance_approved</code><span>false</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>approvals_satisfied</code><strong>false</strong></li></ul></li><li class="mobile-rule"><a href="#fn-final_bonus">final_bonus()</a><ul class="fact-list"><li><code>approvals_satisfied</code><span>false</span></li><li><code>capped_bonus_cents</code><span>1,049,000 c</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>final_bonus_cents</code><strong>0 c</strong></li></ul></li><li class="mobile-rule"><a href="#fn-review_required">review_required()</a><ul class="fact-list"><li><code>capped_bonus_cents</code><span>1,049,000 c</span></li><li><code>approvals_satisfied</code><span>false</span></li></ul><p class="arrow">↓ derives</p><ul class="fact-list result"><li><code>review_required</code><strong>approval_pending</strong></li></ul></li></ol><div class="legend"><span><i class="square"></i>Function</span><span><i class="circle"></i>Fact and value</span><span class="warning">Amber marks the pending approval path</span></div></div><aside><h3>Why the bonus is zero</h3><div class="trace-line"><span>Eligible, capped amount</span><b>1,049,000 c</b></div><div class="trace-line"><span>Finance threshold</span><b>&gt; 200,000 c</b></div><div class="trace-line"><span>Manager approved</span><b>true</b></div><div class="trace-line warning"><span>Finance approved</span><b>false</b></div><div class="trace-line"><span>Approvals satisfied</span><b>false</b></div><div class="fact-result"><code>review_required</code><p class="warning">"approval_pending"</p><code>final_bonus_cents</code><p class="amount">0 c</p><p><code>payment_ready_cents</code> is absent. The downstream payment reference function is skipped.</p></div><pre><code>pub fn review_required(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    if *i.get(CAPPED)? &gt; 0 &amp;&amp; !*i.get(APPROVALS)? {
+        Facts::one(REVIEW, &quot;approval_pending&quot;)
+    } else {
+        Ok(Facts::new())
+    }
+}</code></pre><p class="source-note">This is a focused subgraph. The capped bonus is its boundary input; option A shows the preceding calculations.</p></aside></div></section>
+<section id="option-c"><div class="option-title"><span class="option-letter">C</span><h2>Functions first</h2></div><p class="option-note">Every requirement next to its function, inputs, and new fact. Expand a row to inspect the Rust source.</p><div class="toolbar"><span>E01 / Exceptional specialist</span><span>Execution order</span><span>26 functions</span></div><div class="catalog-layout"><div class="index"><h3>Evaluation</h3><p>Qualify employment</p><p>↓</p><p>Calculate amounts</p><p>↓</p><p>Apply budget</p><p>↓</p><p>Check approvals</p><p>↓</p><p>Derive new facts</p><p class="source-note">Stage summary. Each row lists its exact dependencies.</p></div><div class="catalog"><details id="fn-good_performance">
+    <summary><span class="rule-number">01</span><span><b>good_performance()</b><small>→ good_performance</small></span><span class="catalog-value">true</span></summary>
+    <div class="function-body"><div><p>BR-01: Scores must be 0..100. A score above 50 passes.</p><h4>Reads</h4><ul class="fact-list"><li><code>performance_score</code><span>94</span></li></ul></div><pre><code>pub fn good_performance(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    let score = *i.get(PERFORMANCE)?;
+    if score &gt; 100 {
+        return Err(Error::Custom(
+            &quot;performance_score must be between 0 and 100&quot;.into(),
+        ));
+    }
+    Facts::one(GOOD, score &gt; 50)
+}</code></pre></div>
+    </details><details id="fn-exceptional_performance">
+    <summary><span class="rule-number">02</span><span><b>exceptional_performance()</b><small>→ exceptional_performance</small></span><span class="catalog-value">true</span></summary>
+    <div class="function-body"><div><p>BR-02: A score of at least 90 is exceptional.</p><h4>Reads</h4><ul class="fact-list"><li><code>performance_score</code><span>94</span></li></ul></div><pre><code>pub fn exceptional_performance(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(EXCEPTIONAL, *i.get(PERFORMANCE)? &gt;= 90)
+}</code></pre></div>
+    </details><details id="fn-tenure_eligible">
+    <summary><span class="rule-number">03</span><span><b>tenure_eligible()</b><small>→ tenure_eligible</small></span><span class="catalog-value">true</span></summary>
+    <div class="function-body"><div><p>BR-03: At least 12 months of service are required.</p><h4>Reads</h4><ul class="fact-list"><li><code>tenure_months</code><span>48</span></li></ul></div><pre><code>pub fn tenure_eligible(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(TENURE_OK, *i.get(TENURE)? &gt;= 12)
+}</code></pre></div>
+    </details><details id="fn-conduct_clear">
+    <summary><span class="rule-number">04</span><span><b>conduct_clear()</b><small>→ conduct_clear</small></span><span class="catalog-value">true</span></summary>
+    <div class="function-body"><div><p>BR-04: An active disciplinary hold blocks eligibility.</p><h4>Reads</h4><ul class="fact-list"><li><code>disciplinary_hold</code><span>false</span></li></ul></div><pre><code>pub fn conduct_clear(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(CONDUCT_OK, !*i.get(DISCIPLINARY)?)
+}</code></pre></div>
+    </details><details id="fn-employment_eligible">
+    <summary><span class="rule-number">05</span><span><b>employment_eligible()</b><small>→ employment_eligible</small></span><span class="catalog-value">true</span></summary>
+    <div class="function-body"><div><p>BR-05: Employment must be active and tenure eligible.</p><h4>Reads</h4><ul class="fact-list"><li><code>active</code><span>true</span></li><li><code>tenure_eligible</code><span>true</span></li></ul></div><pre><code>pub fn employment_eligible(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(EMPLOYMENT_OK, *i.get(ACTIVE)? &amp;&amp; *i.get(TENURE_OK)?)
+}</code></pre></div>
+    </details><details id="fn-bonus_eligible">
+    <summary><span class="rule-number">06</span><span><b>bonus_eligible()</b><small>→ bonus_eligible</small></span><span class="catalog-value">true</span></summary>
+    <div class="function-body"><div><p>BR-06: Require eligible employment, good performance, clear conduct, and completed training.</p><h4>Reads</h4><ul class="fact-list"><li><code>employment_eligible</code><span>true</span></li><li><code>good_performance</code><span>true</span></li><li><code>conduct_clear</code><span>true</span></li><li><code>training_complete</code><span>true</span></li></ul></div><pre><code>pub fn bonus_eligible(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        ELIGIBLE,
+        *i.get(EMPLOYMENT_OK)? &amp;&amp; *i.get(GOOD)? &amp;&amp; *i.get(CONDUCT_OK)? &amp;&amp; *i.get(TRAINING)?,
+    )
+}</code></pre></div>
+    </details><details id="fn-role_rate">
+    <summary><span class="rule-number">07</span><span><b>role_rate()</b><small>→ role_rate_bps</small></span><span class="catalog-value">700</span></summary>
+    <div class="function-body"><div><p>BR-07: Base rates are 5% for clerks, 7% for specialists, and 8% for managers.</p><h4>Reads</h4><ul class="fact-list"><li><code>role</code><span>Specialist</span></li></ul></div><pre><code>pub fn role_rate(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        ROLE_RATE,
+        match i.get(ROLE)? {
+            Role::Clerk =&gt; 500,
+            Role::Specialist =&gt; 700,
+            Role::Manager =&gt; 800,
+        },
+    )
+}</code></pre></div>
+    </details><details id="fn-department_factor">
+    <summary><span class="rule-number">08</span><span><b>department_factor()</b><small>→ department_factor_bps</small></span><span class="catalog-value">11,000</span></summary>
+    <div class="function-body"><div><p>BR-08: Department factors are 110% engineering, 120% sales, and 100% operations.</p><h4>Reads</h4><ul class="fact-list"><li><code>department</code><span>Engineering</span></li></ul></div><pre><code>pub fn department_factor(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        DEPARTMENT_FACTOR,
+        match i.get(DEPARTMENT)? {
+            Department::Engineering =&gt; 11_000,
+            Department::Sales =&gt; 12_000,
+            Department::Operations =&gt; 10_000,
+        },
+    )
+}</code></pre></div>
+    </details><details id="fn-company_factor">
+    <summary><span class="rule-number">09</span><span><b>company_factor()</b><small>→ company_factor_bps</small></span><span class="catalog-value">10,000</span></summary>
+    <div class="function-body"><div><p>BR-09: Company factor is 100% when its target is met, otherwise 50%.</p><h4>Reads</h4><ul class="fact-list"><li><code>company_target_met</code><span>true</span></li></ul></div><pre><code>pub fn company_factor(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        COMPANY_FACTOR,
+        if *i.get(TARGET_MET)? { 10_000 } else { 5_000 },
+    )
+}</code></pre></div>
+    </details><details id="fn-performance_factor">
+    <summary><span class="rule-number">10</span><span><b>performance_factor()</b><small>→ performance_factor_bps</small></span><span class="catalog-value">15,000</span></summary>
+    <div class="function-body"><div><p>BR-10: Exceptional performance multiplies the base by 150%, otherwise 100%.</p><h4>Reads</h4><ul class="fact-list"><li><code>exceptional_performance</code><span>true</span></li></ul></div><pre><code>pub fn performance_factor(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        PERFORMANCE_FACTOR,
+        if *i.get(EXCEPTIONAL)? { 15_000 } else { 10_000 },
+    )
+}</code></pre></div>
+    </details><details id="fn-base_bonus">
+    <summary><span class="rule-number">11</span><span><b>base_bonus()</b><small>→ base_bonus_cents</small></span><span class="catalog-value">560,000 c</span></summary>
+    <div class="function-body"><div><p>BR-11: Multiply annual salary by the role rate.</p><h4>Reads</h4><ul class="fact-list"><li><code>salary_cents</code><span>8,000,000 c</span></li><li><code>role_rate_bps</code><span>700</span></li></ul></div><pre><code>pub fn base_bonus(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(BASE, scaled(*i.get(SALARY)?, *i.get(ROLE_RATE)?)?)
+}</code></pre></div>
+    </details><details id="fn-performance_bonus">
+    <summary><span class="rule-number">12</span><span><b>performance_bonus()</b><small>→ performance_bonus_cents</small></span><span class="catalog-value">840,000 c</span></summary>
+    <div class="function-body"><div><p>BR-12: Apply the performance factor to the base bonus.</p><h4>Reads</h4><ul class="fact-list"><li><code>base_bonus_cents</code><span>560,000 c</span></li><li><code>performance_factor_bps</code><span>15,000</span></li></ul></div><pre><code>pub fn performance_bonus(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        PERFORMANCE_BONUS,
+        scaled(*i.get(BASE)?, *i.get(PERFORMANCE_FACTOR)?)?,
+    )
+}</code></pre></div>
+    </details><details id="fn-department_bonus">
+    <summary><span class="rule-number">13</span><span><b>department_bonus()</b><small>→ department_bonus_cents</small></span><span class="catalog-value">924,000 c</span></summary>
+    <div class="function-body"><div><p>BR-13: Apply the department factor after performance.</p><h4>Reads</h4><ul class="fact-list"><li><code>performance_bonus_cents</code><span>840,000 c</span></li><li><code>department_factor_bps</code><span>11,000</span></li></ul></div><pre><code>pub fn department_bonus(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        DEPARTMENT_BONUS,
+        scaled(*i.get(PERFORMANCE_BONUS)?, *i.get(DEPARTMENT_FACTOR)?)?,
+    )
+}</code></pre></div>
+    </details><details id="fn-company_bonus">
+    <summary><span class="rule-number">14</span><span><b>company_bonus()</b><small>→ company_bonus_cents</small></span><span class="catalog-value">924,000 c</span></summary>
+    <div class="function-body"><div><p>BR-14: Apply the company factor after the department factor.</p><h4>Reads</h4><ul class="fact-list"><li><code>department_bonus_cents</code><span>924,000 c</span></li><li><code>company_factor_bps</code><span>10,000</span></li></ul></div><pre><code>pub fn company_bonus(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        COMPANY_BONUS,
+        scaled(*i.get(DEPARTMENT_BONUS)?, *i.get(COMPANY_FACTOR)?)?,
+    )
+}</code></pre></div>
+    </details><details id="fn-tenure_award">
+    <summary><span class="rule-number">15</span><span><b>tenure_award()</b><small>→ tenure_award_cents</small></span><span class="catalog-value">50,000 c</span></summary>
+    <div class="function-body"><div><p>BR-15: Add 50,000 cents for at least 36 months of service.</p><h4>Reads</h4><ul class="fact-list"><li><code>tenure_months</code><span>48</span></li></ul></div><pre><code>pub fn tenure_award(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(TENURE_AWARD, if *i.get(TENURE)? &gt;= 36 { 50_000 } else { 0 })
+}</code></pre></div>
+    </details><details id="fn-retention_award">
+    <summary><span class="rule-number">16</span><span><b>retention_award()</b><small>→ retention_award_cents</small></span><span class="catalog-value">75,000 c</span></summary>
+    <div class="function-body"><div><p>BR-16: Add 75,000 cents for critical skills with good performance.</p><h4>Reads</h4><ul class="fact-list"><li><code>critical_skill</code><span>true</span></li><li><code>good_performance</code><span>true</span></li></ul></div><pre><code>pub fn retention_award(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        RETENTION_AWARD,
+        if *i.get(CRITICAL_SKILL)? &amp;&amp; *i.get(GOOD)? {
+            75_000
+        } else {
+            0
+        },
+    )
+}</code></pre></div>
+    </details><details id="fn-proposed_bonus">
+    <summary><span class="rule-number">17</span><span><b>proposed_bonus()</b><small>→ proposed_bonus_cents</small></span><span class="catalog-value">1,049,000 c</span></summary>
+    <div class="function-body"><div><p>BR-17: Sum the company-adjusted bonus and both awards.</p><h4>Reads</h4><ul class="fact-list"><li><code>company_bonus_cents</code><span>924,000 c</span></li><li><code>tenure_award_cents</code><span>50,000 c</span></li><li><code>retention_award_cents</code><span>75,000 c</span></li></ul></div><pre><code>pub fn proposed_bonus(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        PROPOSED,
+        sum(&amp;[
+            *i.get(COMPANY_BONUS)?,
+            *i.get(TENURE_AWARD)?,
+            *i.get(RETENTION_AWARD)?,
+        ])?,
+    )
+}</code></pre></div>
+    </details><details id="fn-eligible_bonus">
+    <summary><span class="rule-number">18</span><span><b>eligible_bonus()</b><small>→ eligible_bonus_cents</small></span><span class="catalog-value">1,049,000 c</span></summary>
+    <div class="function-body"><div><p>BR-18: Ineligible employees receive a zero proposed payment.</p><h4>Reads</h4><ul class="fact-list"><li><code>bonus_eligible</code><span>true</span></li><li><code>proposed_bonus_cents</code><span>1,049,000 c</span></li></ul></div><pre><code>pub fn eligible_bonus(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        ELIGIBLE_AMOUNT,
+        if *i.get(ELIGIBLE)? {
+            *i.get(PROPOSED)?
+        } else {
+            0
+        },
+    )
+}</code></pre></div>
+    </details><details id="fn-capped_bonus">
+    <summary><span class="rule-number">19</span><span><b>capped_bonus()</b><small>→ capped_bonus_cents</small></span><span class="catalog-value">1,049,000 c</span></summary>
+    <div class="function-body"><div><p>BR-19: Cap the bonus at the employee-specific budget allocation.</p><h4>Reads</h4><ul class="fact-list"><li><code>eligible_bonus_cents</code><span>1,049,000 c</span></li><li><code>employee_budget_cents</code><span>1,200,000 c</span></li></ul></div><pre><code>pub fn capped_bonus(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(CAPPED, (*i.get(ELIGIBLE_AMOUNT)?).min(*i.get(BUDGET)?))
+}</code></pre></div>
+    </details><details id="fn-finance_required">
+    <summary><span class="rule-number">20</span><span><b>finance_required()</b><small>→ finance_required</small></span><span class="catalog-value">true</span></summary>
+    <div class="function-body"><div><p>BR-20: Finance approval is required above 200,000 cents, strictly.</p><h4>Reads</h4><ul class="fact-list"><li><code>capped_bonus_cents</code><span>1,049,000 c</span></li></ul></div><pre><code>pub fn finance_required(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(FINANCE_REQUIRED, *i.get(CAPPED)? &gt; 200_000)
+}</code></pre></div>
+    </details><details id="fn-approvals_satisfied">
+    <summary><span class="rule-number">21</span><span><b>approvals_satisfied()</b><small>→ approvals_satisfied</small></span><span class="catalog-value">true</span></summary>
+    <div class="function-body"><div><p>BR-21: Require manager approval and finance approval when required.</p><h4>Reads</h4><ul class="fact-list"><li><code>manager_approved</code><span>true</span></li><li><code>finance_required</code><span>true</span></li><li><code>finance_approved</code><span>true</span></li></ul></div><pre><code>pub fn approvals_satisfied(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        APPROVALS,
+        *i.get(MANAGER_APPROVED)? &amp;&amp; (!*i.get(FINANCE_REQUIRED)? || *i.get(FINANCE_APPROVED)?),
+    )
+}</code></pre></div>
+    </details><details id="fn-final_bonus" open>
+    <summary><span class="rule-number">22</span><span><b>final_bonus()</b><small>→ final_bonus_cents</small></span><span class="catalog-value">1,049,000 c</span></summary>
+    <div class="function-body"><div><p>BR-22: Emit the capped bonus if approvals pass, otherwise zero.</p><h4>Reads</h4><ul class="fact-list"><li><code>approvals_satisfied</code><span>true</span></li><li><code>capped_bonus_cents</code><span>1,049,000 c</span></li></ul></div><pre><code>pub fn final_bonus(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        FINAL,
+        if *i.get(APPROVALS)? {
+            *i.get(CAPPED)?
+        } else {
+            0
+        },
+    )
+}</code></pre></div>
+    </details><details id="fn-payment_ready">
+    <summary><span class="rule-number">23</span><span><b>payment_ready()</b><small>→ payment_ready_cents</small></span><span class="catalog-value">1,049,000 c</span></summary>
+    <div class="function-body"><div><p>BR-23: Emit a payment-ready fact only for a positive final bonus.</p><h4>Reads</h4><ul class="fact-list"><li><code>final_bonus_cents</code><span>1,049,000 c</span></li></ul></div><pre><code>pub fn payment_ready(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    let amount = *i.get(FINAL)?;
+    if amount &gt; 0 {
+        Facts::one(PAYMENT, amount)
+    } else {
+        Ok(Facts::new())
+    }
+}</code></pre></div>
+    </details><details id="fn-review_required">
+    <summary><span class="rule-number">24</span><span><b>review_required()</b><small>→ review_required</small></span><span class="catalog-value">absent</span></summary>
+    <div class="function-body"><div><p>BR-24: Emit approval_pending only for a positive bonus awaiting approval.</p><h4>Reads</h4><ul class="fact-list"><li><code>capped_bonus_cents</code><span>1,049,000 c</span></li><li><code>approvals_satisfied</code><span>true</span></li></ul></div><pre><code>pub fn review_required(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    if *i.get(CAPPED)? &gt; 0 &amp;&amp; !*i.get(APPROVALS)? {
+        Facts::one(REVIEW, &quot;approval_pending&quot;)
+    } else {
+        Ok(Facts::new())
+    }
+}</code></pre></div>
+    </details><details id="fn-total_compensation">
+    <summary><span class="rule-number">25</span><span><b>total_compensation()</b><small>→ total_compensation_cents</small></span><span class="catalog-value">9,049,000 c</span></summary>
+    <div class="function-body"><div><p>BR-25: Total compensation is annual salary plus the final bonus.</p><h4>Reads</h4><ul class="fact-list"><li><code>salary_cents</code><span>8,000,000 c</span></li><li><code>final_bonus_cents</code><span>1,049,000 c</span></li></ul></div><pre><code>pub fn total_compensation(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(TOTAL, sum(&amp;[*i.get(SALARY)?, *i.get(FINAL)?])?)
+}</code></pre></div>
+    </details><details id="fn-payment_reference">
+    <summary><span class="rule-number">26</span><span><b>payment_reference()</b><small>→ payment_reference</small></span><span class="catalog-value">BONUS-E01-1049000</span></summary>
+    <div class="function-body"><div><p>BR-26: Derive a reference from employee ID and payment cents only when payment is ready.</p><h4>Reads</h4><ul class="fact-list"><li><code>employee_id</code><span>E01</span></li><li><code>payment_ready_cents</code><span>1,049,000 c</span></li></ul></div><pre><code>pub fn payment_reference(i: &amp;Inputs&lt;&#x27;_&gt;) -&gt; Result&lt;Facts, Error&gt; {
+    Facts::one(
+        REFERENCE,
+        format!(&quot;BONUS-{}-{}&quot;, i.get(EMPLOYEE_ID)?, i.get(PAYMENT)?),
+    )
+}</code></pre></div>
+    </details></div></div></section>
+<section id="scenarios"><h2>Synthetic cases</h2><p>Every result matches the fixture's expected amount and review status. Amounts are cents.</p><table><thead><tr><th>Case</th><th>Requirement exercised</th><th>New bonus fact</th><th>Outcome</th></tr></thead><tbody><tr><th scope="row">E01</th><td>Exceptional specialist</td><td>1,049,000 c</td><td>Payment</td></tr><tr><th scope="row">E02</th><td>Budget caps manager bonus</td><td>600,000 c</td><td>Payment</td></tr><tr><th scope="row">E03</th><td>Finance approval pending</td><td>0 c</td><td>Review</td></tr><tr><th scope="row">E04</th><td>Performance exactly 50</td><td>0 c</td><td>No payment</td></tr><tr><th scope="row">E05</th><td>Performance just above 50</td><td>741,000 c</td><td>Payment</td></tr><tr><th scope="row">E06</th><td>Tenure below 12 months</td><td>0 c</td><td>No payment</td></tr><tr><th scope="row">E07</th><td>Inactive employee</td><td>0 c</td><td>No payment</td></tr><tr><th scope="row">E08</th><td>Training incomplete</td><td>0 c</td><td>No payment</td></tr><tr><th scope="row">E09</th><td>Disciplinary hold</td><td>0 c</td><td>No payment</td></tr><tr><th scope="row">E10</th><td>Company target missed</td><td>587,000 c</td><td>Payment</td></tr><tr><th scope="row">E11</th><td>Exactly finance threshold</td><td>200,000 c</td><td>Payment</td></tr><tr><th scope="row">E12</th><td>One cent above finance threshold</td><td>0 c</td><td>Review</td></tr><tr><th scope="row">E13</th><td>Manager approval pending</td><td>0 c</td><td>Review</td></tr><tr><th scope="row">E14</th><td>Zero allocated budget</td><td>0 c</td><td>No payment</td></tr></tbody></table></section>
+<footer><p>Choose A, B, or C as the viewer's starting point.</p><p class="source-note">Static mocks generated from the local Rust example's function catalog, input facts, and evaluated results. The policy and employees are fictional. The crate derives facts; it does not execute payments. No custom viewer is implemented yet.</p></footer>
+</main></body></html>
