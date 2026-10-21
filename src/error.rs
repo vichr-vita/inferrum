@@ -48,6 +48,13 @@ pub enum Error {
         /// The underlying application or validation error.
         source: Box<Error>,
     },
+    /// A viewer scenario failed during evaluation.
+    ViewerCaseFailed {
+        /// The scenario identifier.
+        case: String,
+        /// The underlying evaluation error.
+        source: Box<Error>,
+    },
     /// An error reported by application logic.
     Custom(String),
 }
@@ -79,6 +86,7 @@ impl fmt::Display for Error {
             Self::UndeclaredOutput(name) => write!(f, "rule returned undeclared fact {name:?}"),
             Self::MissingFact(name) => write!(f, "fact {name:?} is missing"),
             Self::RuleFailed { rule, source } => write!(f, "rule {rule:?} failed: {source}"),
+            Self::ViewerCaseFailed { case, source } => write!(f, "viewer case {case:?}: {source}"),
             Self::Custom(message) => f.write_str(message),
         }
     }
@@ -87,7 +95,9 @@ impl fmt::Display for Error {
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            Self::RuleFailed { source, .. } => Some(source.as_ref()),
+            Self::RuleFailed { source, .. } | Self::ViewerCaseFailed { source, .. } => {
+                Some(source.as_ref())
+            }
             _ => None,
         }
     }

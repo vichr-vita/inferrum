@@ -215,6 +215,25 @@ fn callbacks_cannot_read_undeclared_facts() -> Result<(), Error> {
 }
 
 #[test]
+fn input_debug_does_not_expose_undeclared_facts() -> Result<(), Error> {
+    const SECRET: Fact<&str> = Fact::new("secret");
+    let engine = Engine::new(
+        [SEED.spec(), SECRET.spec()],
+        vec![Rule::new("inspect", [SEED.spec()], [], |inputs| {
+            let debug = format!("{inputs:?}");
+            assert!(debug.contains("seed"));
+            assert!(!debug.contains("secret"));
+            assert!(!debug.contains("private value"));
+            Ok(Facts::new())
+        })],
+    )?;
+    let mut input = Facts::one(SEED, 1)?;
+    input.insert(SECRET, "private value")?;
+    engine.run(&input)?;
+    Ok(())
+}
+
+#[test]
 fn output_contract_rejects_unknown_and_mistyped_facts() -> Result<(), Error> {
     for rule in [
         Rule::new("bad", [], [LEFT.spec()], |_| Facts::one(RIGHT, 1)),

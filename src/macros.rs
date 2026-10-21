@@ -102,21 +102,21 @@ macro_rules! rule {
                 ::core::option::Option::Some(value) => $crate::Facts::one($output, value),
                 ::core::option::Option::None => ::core::result::Result::Ok($crate::Facts::new()),
             }
-        }; stringify!($name($($binding: $input),*) -> ? $output $body) }
+        }; ::core::stringify!($name($($binding: $input),*) -> ? $output $body) }
     };
     ($name:ident($($binding:ident: $input:path),* $(,)?) -> [$($output:path),* $(,)?] $body:block) => {
         $crate::rule! { @build $name($($binding: $input),*) [$($output),*] $body;
-            stringify!($name($($binding: $input),*) -> [$($output),*] $body) }
+            ::core::stringify!($name($($binding: $input),*) -> [$($output),*] $body) }
     };
     ($name:ident($($binding:ident: $input:path),* $(,)?) -> $output:path $body:block) => {
         $crate::rule! { @build $name($($binding: $input),*) [$output] {
             let value = $body;
             $crate::Facts::one($output, value)
-        }; stringify!($name($($binding: $input),*) -> $output $body) }
+        }; ::core::stringify!($name($($binding: $input),*) -> $output $body) }
     };
     (@build $name:ident($($binding:ident: $input:path),*) [$($output:path),*] $body:block; $source:expr) => {
         $crate::Rule::new(
-            stringify!($name),
+            ::core::stringify!($name),
             [$($input.spec()),*],
             [$($output.spec()),*],
             move |_inputs| {

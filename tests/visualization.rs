@@ -135,6 +135,51 @@ fn html_supports_topology_only_and_rejects_invalid_case_ids_or_failed_runs() -> 
 }
 
 #[test]
+fn html_preserves_case_and_evaluation_error_sources() -> Result<(), Error> {
+    use inferrum::visualization::ViewerCase;
+    use std::error::Error as _;
+
+    let engine = Engine::new(
+        [],
+        vec![Rule::new("fail", [], [], |_| {
+            Err(Error::Custom("invalid business data".into()))
+        })],
+    )?;
+    let error = engine
+        .to_html(
+            "Failure",
+            &[ViewerCase::new("case-1", "Case", Facts::new())],
+        )
+        .unwrap_err();
+    assert_eq!(
+        error,
+        Error::ViewerCaseFailed {
+            case: "case-1".into(),
+            source: Box::new(Error::RuleFailed {
+                rule: "fail",
+                source: Box::new(Error::Custom("invalid business data".into())),
+            }),
+        }
+    );
+    let rule_error = error.source().expect("case evaluation error");
+    assert_eq!(
+        rule_error.downcast_ref::<Error>(),
+        Some(&Error::RuleFailed {
+            rule: "fail",
+            source: Box::new(Error::Custom("invalid business data".into())),
+        })
+    );
+    assert_eq!(
+        rule_error
+            .source()
+            .expect("rule callback error")
+            .downcast_ref::<Error>(),
+        Some(&Error::Custom("invalid business data".into()))
+    );
+    Ok(())
+}
+
+#[test]
 fn full_and_compact_graphs_preserve_dependencies() -> Result<(), Error> {
     const A: Fact<i32> = Fact::new("a");
     const B: Fact<i32> = Fact::new("b");

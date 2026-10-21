@@ -2,10 +2,18 @@ use crate::{Error, Fact, FactSpec, Facts};
 use std::{any::Any, fmt};
 
 /// Read-only access to exactly the inputs declared by the current rule.
-#[derive(Debug)]
 pub struct Inputs<'a> {
     pub(crate) facts: &'a Facts,
     pub(crate) declared: &'a [FactSpec],
+}
+
+impl fmt::Debug for Inputs<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // The backing collection also contains facts this rule may not read.
+        f.debug_struct("Inputs")
+            .field("declared", &self.declared)
+            .finish_non_exhaustive()
+    }
 }
 
 impl Inputs<'_> {

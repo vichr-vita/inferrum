@@ -114,7 +114,8 @@ impl Engine {
     ///
     /// # Errors
     /// Returns an error for empty or duplicate case identifiers, or if a case fails
-    /// evaluation. Callbacks execute once per case, so they should be pure.
+    /// evaluation. Failed evaluations return [`Error::ViewerCaseFailed`] with the
+    /// original error as its source. Callbacks execute once per case, so they should be pure.
     pub fn to_html(&self, title: &str, cases: &[ViewerCase]) -> Result<String, Error> {
         let mut ids = BTreeSet::new();
         for case in cases {
@@ -149,7 +150,10 @@ impl Engine {
         for case in cases {
             let result = self
                 .evaluate(&case.inputs)
-                .map_err(|error| Error::Custom(format!("viewer case {:?}: {error}", case.id)))?;
+                .map_err(|source| Error::ViewerCaseFailed {
+                    case: case.id.clone(),
+                    source: Box::new(source),
+                })?;
             let trace = result
                 .trace
                 .into_iter()

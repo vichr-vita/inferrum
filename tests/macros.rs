@@ -56,6 +56,29 @@ fn typed_bindings_borrow_non_clone_values_and_register_dependencies() -> Result<
 }
 
 #[test]
+fn caller_stringify_macro_cannot_change_rule_ids_or_source() {
+    #[allow(unused_macros)]
+    macro_rules! stringify {
+        ($($token:tt)*) => {
+            "shadowed"
+        };
+    }
+
+    let required = rule! { required() -> SIZE { 1 } };
+    let optional = rule! { optional() -> ? SIZE { Some(2) } };
+    let multiple = rule! { multiple() -> [SIZE] { facts! { SIZE => 3 } } };
+    for (rule, name) in [
+        (required, "required"),
+        (optional, "optional"),
+        (multiple, "multiple"),
+    ] {
+        assert_eq!(rule.id(), name);
+        assert!(rule.source_code().contains(name));
+        assert!(!rule.source_code().contains("shadowed"));
+    }
+}
+
+#[test]
 fn optional_outputs_distinguish_no_match_from_missing_input() -> Result<(), Error> {
     let engine = ruleset! {
         inputs [FLAG];
