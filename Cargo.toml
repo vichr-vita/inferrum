@@ -7,6 +7,11 @@ description = "A typed DAG decision engine that derives new facts"
 readme = "README.md"
 publish = false
 
+[workspace]
+members = ["ffi"]
+default-members = ["."]
+resolver = "3"
+
 [features]
 default = []
 visualization = ["dep:serde", "dep:serde_json"]

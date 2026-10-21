@@ -17,7 +17,7 @@ pub enum Department {
 }
 
 declare_facts! {
-    pub EMPLOYEE_ID: &str = "employee_id";
+    pub EMPLOYEE_ID: String = "employee_id";
     pub ACTIVE: bool = "active";
     pub TENURE: u16 = "tenure_months";
     pub PERFORMANCE: u8 = "performance_score";
@@ -215,7 +215,7 @@ pub struct Scenario {
 impl Scenario {
     pub fn facts(&self) -> Result<Facts, Error> {
         facts! {
-            EMPLOYEE_ID => self.id,
+            EMPLOYEE_ID => self.id.to_owned(),
             ACTIVE => self.active,
             TENURE => self.tenure,
             PERFORMANCE => self.score,

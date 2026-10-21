@@ -201,6 +201,14 @@ The viewer implements option A from the
 [approved static design](https://kv2xry4zcwv1.postplan.dev). The original comparison
 remains in `design/visualization-options.html`.
 
+## Call from Go
+
+The optional [`inferrum-ffi` crate](ffi/README.md) provides a Rust static library,
+a Protobuf contract, and a cgo wrapper for the fictional bonus policy. Your Go
+application supplies inputs and receives derived facts inside the same process.
+The core crate keeps its dependency-free default build. See the
+[Go integration guide](ffi/README.md) for setup, ownership rules, and tests.
+
 ## Development
 
 Install [cargo-nextest](https://nexte.st/docs/installation/pre-built-binaries/)

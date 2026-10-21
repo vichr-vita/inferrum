@@ -1,0 +1,25 @@
+[package]
+name = "inferrum-ffi"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Protobuf and C bindings for the compiled Inferrum bonus policy"
+publish = false
+
+[lib]
+crate-type = ["staticlib", "rlib"]
+
+[lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+unwrap_used = "deny"
+
+[dependencies]
+inferrum = { version = "0.1.0", path = ".." }
+prost = "=0.14.1"
+
+[build-dependencies]
+prost-build = "=0.14.1"

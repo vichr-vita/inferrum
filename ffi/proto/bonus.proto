@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package inferrum.bonus.v1;
+option go_package = "inferrum.local/ffi/bonusv1";
+
+// One independent business case. Missing inputs stay absent in the engine.
+message BonusRequest {
+  BonusInput inputs = 1;
+  bool include_trace = 2;
+}
+
+message BonusInput {
+  optional string employee_id = 1;
+  optional bool active = 2;
+  optional uint32 tenure_months = 3;
+  optional uint32 performance_score = 4;
+  optional uint64 salary_cents = 5;
+  optional Role role = 6;
+  optional Department department = 7;
+  optional bool training_complete = 8;
+  optional bool disciplinary_hold = 9;
+  optional bool company_target_met = 10;
+  optional uint64 employee_budget_cents = 11;
+  optional bool manager_approved = 12;
+  optional bool finance_approved = 13;
+  optional bool critical_skill = 14;
+}
+
+enum Role {
+  ROLE_UNSPECIFIED = 0;
+  ROLE_CLERK = 1;
+  ROLE_SPECIALIST = 2;
+  ROLE_MANAGER = 3;
+}
+
+enum Department {
+  DEPARTMENT_UNSPECIFIED = 0;
+  DEPARTMENT_ENGINEERING = 1;
+  DEPARTMENT_SALES = 2;
+  DEPARTMENT_OPERATIONS = 3;
+}
+
+message BonusResponse {
+  // Identifies rule behavior independently of this message schema's version.
+  string policy_version = 1;
+  oneof outcome {
+    BonusResult result = 2;
+    EvaluationError error = 3;
+  }
+}
+
+message BonusResult {
+  // Contains only derived facts. Absent outputs are distinct from false and zero.
+  BonusFacts facts = 1;
+  repeated RuleTrace trace = 2;
+}
+
+message BonusFacts {
+  optional bool good_performance = 1;
+  optional bool exceptional_performance = 2;
+  optional bool tenure_eligible = 3;
+  optional bool conduct_clear = 4;
+  optional bool employment_eligible = 5;
+  optional bool bonus_eligible = 6;
+  optional uint64 role_rate_bps = 7;
+  optional uint64 department_factor_bps = 8;
+  optional uint64 company_factor_bps = 9;
+  optional uint64 performance_factor_bps = 10;
+  optional uint64 base_bonus_cents = 11;
+  optional uint64 performance_bonus_cents = 12;
+  optional uint64 department_bonus_cents = 13;
+  optional uint64 company_bonus_cents = 14;
+  optional uint64 tenure_award_cents = 15;
+  optional uint64 retention_award_cents = 16;
+  optional uint64 proposed_bonus_cents = 17;
+  optional uint64 eligible_bonus_cents = 18;
+  optional uint64 capped_bonus_cents = 19;
+  optional bool finance_required = 20;
+  optional bool approvals_satisfied = 21;
+  optional uint64 final_bonus_cents = 22;
+  optional uint64 payment_ready_cents = 23;
+  optional string review_required = 24;
+  optional uint64 total_compensation_cents = 25;
+  optional string payment_reference = 26;
+}
+
+message RuleTrace {
+  string rule = 1;
+  RuleStatus status = 2;
+  repeated string produced_facts = 3;
+  repeated string missing_inputs = 4;
+}
+
+enum RuleStatus {
+  RULE_STATUS_UNSPECIFIED = 0;
+  RULE_STATUS_PRODUCED = 1;
+  RULE_STATUS_NO_MATCH = 2;
+  RULE_STATUS_SKIPPED = 3;
+}
+
+message EvaluationError {
+  ErrorCode code = 1;
+  string message = 2;
+  optional string field = 3;
+  optional string rule = 4;
+}
+
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+  ERROR_CODE_INVALID_INPUT = 1;
+  ERROR_CODE_DECODE = 2;
+  ERROR_CODE_RULE_FAILED = 3;
+  ERROR_CODE_INTERNAL = 4;
+}
