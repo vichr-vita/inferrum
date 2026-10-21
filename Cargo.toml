@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
 description = "A typed DAG decision engine that derives new facts"
+license = "Apache-2.0"
+repository = "https://github.com/vichr-vita/inferrum"
 readme = "README.md"
 publish = false
 

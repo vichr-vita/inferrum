@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
 description = "Protobuf and C bindings for the compiled Inferrum bonus policy"
+license = "Apache-2.0"
+repository = "https://github.com/vichr-vita/inferrum"
 publish = false
 
 [lib]

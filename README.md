@@ -281,3 +281,10 @@ Browser checks cover
 populated views, expanded source, long values, overflow, scenario outcomes,
 keyboard selection, URL history, and safe text rendering. CI also checks that
 the bundled JavaScript matches its TypeScript source.
+
+## License
+
+Copyright 2026 Vít Chrubasík.
+
+Inferrum is licensed under the [Apache License 2.0](LICENSE).
+Bundled third-party code retains its own license notices.

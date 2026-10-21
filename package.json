@@ -1,6 +1,7 @@
 {
   "name": "inferrum-viewer",
   "private": true,
+  "license": "Apache-2.0",
   "scripts": {
     "build:viewer": "tsc -p viewer/tsconfig.json && node viewer/build.mjs",
     "check:viewer": "tsc -p viewer/tsconfig.json && node viewer/build.mjs --check",
