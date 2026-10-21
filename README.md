@@ -4,6 +4,11 @@ Inferrum is a Rust crate for business rules arranged as a directed acyclic graph
 Declare typed facts and rules. Inferrum checks their dependencies,
 runs them in topological order, and returns only newly derived facts.
 
+![Bonus rule graph with final_bonus selected, showing its dependencies, evaluated facts, and Rust source in the inspector.](docs/bonus-viewer.png)
+
+The [bonus example](#synthetic-business-rules) with `final_bonus` selected.
+[View the full graph](fixtures/bonus/rules.svg).
+
 ```rust
 use inferrum::{declare_facts, facts, rule, ruleset};
 
