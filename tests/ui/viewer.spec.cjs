@@ -3,7 +3,8 @@ const { readFileSync } = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
-const file = path.resolve(__dirname, '../../target/bonus/index.html');
+const output = process.env.INFERRUM_BONUS_OUTPUT || path.resolve(__dirname, '../../target/bonus');
+const file = path.resolve(output, 'index.html');
 const viewer = pathToFileURL(file).href;
 const payloadPattern = /(<script id="inferrum-data" type="application\/json">)([\s\S]*?)(<\/script>)/;
 
@@ -30,7 +31,8 @@ test('scenario changes update facts, trace, and inspector without moving the DAG
   await page.goto(`${viewer}#case=E01&rule=final_bonus`);
   await expect(page.locator('.rule-node')).toHaveCount(26);
   await expect(page.locator('#outputs [data-fact="final_bonus_cents"] .fact-value')).toHaveText('1,049,000 c');
-  await expect(page.locator('#source')).toContainText('pub fn final_bonus');
+  await expect(page.locator('#source')).toContainText('final_bonus');
+  await expect(page.locator('#source')).toContainText('-> FINAL');
   const positions = await page.locator('.rule-node rect').evaluateAll(nodes => nodes.map(n => [n.getAttribute('x'), n.getAttribute('y')]));
   await page.selectOption('#case-select', 'E03');
   await expect(page.locator('#outputs .fact-value')).toHaveText('0 c');
@@ -47,7 +49,7 @@ test('scenario changes update facts, trace, and inspector without moving the DAG
 });
 
 test('all scenarios display their exported bonus amounts', async ({ page }) => {
-  const rows = readFileSync(path.resolve(__dirname, '../../target/bonus/scenarios.tsv'), 'utf8').trim().split('\n').slice(1);
+  const rows = readFileSync(path.resolve(output, 'scenarios.tsv'), 'utf8').trim().split('\n').slice(1);
   await page.goto(`${viewer}#rule=final_bonus`);
   for (const row of rows) {
     const [id, , expected] = row.split('\t');

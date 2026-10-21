@@ -34,7 +34,7 @@ def value(fact, employee="E01"):
 
 
 def rust_source(name):
-    start = source.index(f"pub fn {name}(")
+    start = source.index(f"rule! {{ {name}(")
     brace = source.index("{", start)
     depth = 1
     end = brace + 1

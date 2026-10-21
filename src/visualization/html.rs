@@ -1,5 +1,6 @@
 use crate::{Engine, Error, Facts, RuleStatus};
-use std::{collections::BTreeSet, fmt::Write};
+use serde::Serialize;
+use std::collections::{BTreeMap, BTreeSet};
 
 /// One named set of input facts to evaluate and include in an HTML viewer.
 /// Values and attached rule source are embedded in the exported file.
@@ -24,38 +25,82 @@ impl ViewerCase {
     }
 }
 
-// Escape JSON for a non-executable script element as well as JSON syntax itself.
-// In particular, a fact value containing </script> must remain plain text.
-fn json(text: &str) -> String {
-    let mut result = String::from("\"");
-    for character in text.chars() {
-        match character {
-            '"' => result.push_str("\\\""),
-            '\\' => result.push_str("\\\\"),
-            '<' | '>' | '&' | '\u{2028}' | '\u{2029}' | '\u{0}'..='\u{1f}' => {
-                write!(result, "\\u{:04x}", u32::from(character))
-                    .expect("writing to a String cannot fail");
-            }
-            character => result.push(character),
-        }
-    }
-    result.push('"');
-    result
+// These private types define the browser payload without imposing Serialize on
+// user fact values or exposing engine internals as a persistence format.
+#[derive(Serialize)]
+struct ViewerData<'a> {
+    title: &'a str,
+    #[serde(rename = "inputCount")]
+    input_count: usize,
+    rules: Vec<RuleData>,
+    edges: Vec<EdgeData>,
+    cases: Vec<CaseData<'a>>,
 }
 
-fn list<'a>(values: impl Iterator<Item = &'a str>) -> String {
-    format!("[{}]", values.map(json).collect::<Vec<_>>().join(","))
+#[derive(Serialize)]
+struct RuleData {
+    id: &'static str,
+    requirement: &'static str,
+    source: &'static str,
+    inputs: Vec<FactData>,
+    outputs: Vec<FactData>,
 }
 
-fn fact_values(facts: &Facts) -> String {
-    format!(
-        "{{{}}}",
-        facts
-            .iter()
-            .map(|(name, value)| format!("{}:{}", json(name), json(&format!("{value:?}"))))
-            .collect::<Vec<_>>()
-            .join(",")
-    )
+#[derive(Serialize)]
+struct FactData {
+    name: &'static str,
+    #[serde(rename = "type")]
+    type_name: &'static str,
+}
+
+#[derive(Serialize)]
+struct EdgeData {
+    from: usize,
+    to: usize,
+    fact: &'static str,
+}
+
+#[derive(Serialize)]
+struct CaseData<'a> {
+    id: &'a str,
+    label: &'a str,
+    inputs: BTreeMap<&'static str, String>,
+    facts: BTreeMap<&'static str, String>,
+    trace: BTreeMap<&'static str, TraceData>,
+}
+
+#[derive(Serialize)]
+struct TraceData {
+    kind: &'static str,
+    facts: Vec<&'static str>,
+}
+
+fn specs(items: &[crate::FactSpec]) -> Vec<FactData> {
+    items
+        .iter()
+        .map(|spec| FactData {
+            name: spec.name(),
+            type_name: spec.type_name(),
+        })
+        .collect()
+}
+
+fn fact_values(facts: &Facts) -> BTreeMap<&'static str, String> {
+    facts
+        .iter()
+        .map(|(name, value)| (name, format!("{value:?}")))
+        .collect()
+}
+
+// JSON escaping alone cannot keep </script> inside a script element. Escape
+// HTML-sensitive characters after serialization so the payload stays inert.
+fn script_json(data: &impl Serialize) -> Result<String, serde_json::Error> {
+    Ok(serde_json::to_string(data)?
+        .replace('&', "\\u0026")
+        .replace('<', "\\u003c")
+        .replace('>', "\\u003e")
+        .replace('\u{2028}', "\\u2028")
+        .replace('\u{2029}', "\\u2029"))
 }
 
 impl Engine {
@@ -81,47 +126,25 @@ impl Engine {
         }
         let rules = self
             .rules()
-            .map(|rule| {
-                let specs = |items: &[crate::FactSpec]| {
-                    format!(
-                        "[{}]",
-                        items
-                            .iter()
-                            .map(|spec| format!(
-                                r#"{{"name":{},"type":{}}}"#,
-                                json(spec.name()),
-                                json(spec.type_name())
-                            ))
-                            .collect::<Vec<_>>()
-                            .join(",")
-                    )
-                };
-                format!(
-                    r#"{{"id":{},"requirement":{},"source":{},"inputs":{},"outputs":{}}}"#,
-                    json(rule.id()),
-                    json(rule.requirement()),
-                    json(rule.source_code()),
-                    specs(rule.inputs()),
-                    specs(rule.outputs())
-                )
+            .map(|rule| RuleData {
+                id: rule.id(),
+                requirement: rule.requirement(),
+                source: rule.source_code(),
+                inputs: specs(rule.inputs()),
+                outputs: specs(rule.outputs()),
             })
-            .collect::<Vec<_>>()
-            .join(",");
+            .collect();
         let edges = self
             .graph(super::GraphView::Rules)
             .edges
             .iter()
-            .map(|edge| {
-                // Rule-view node indices follow the same execution order as `rules`.
-                format!(
-                    r#"{{"from":{},"to":{},"fact":{}}}"#,
-                    edge.from,
-                    edge.to,
-                    json(edge.fact)
-                )
+            // Rule-view node indices follow the same execution order as `rules`.
+            .map(|edge| EdgeData {
+                from: edge.from,
+                to: edge.to,
+                fact: edge.fact,
             })
-            .collect::<Vec<_>>()
-            .join(",");
+            .collect();
         let mut snapshots = Vec::with_capacity(cases.len());
         for case in cases {
             let result = self
@@ -129,39 +152,32 @@ impl Engine {
                 .map_err(|error| Error::Custom(format!("viewer case {:?}: {error}", case.id)))?;
             let trace = result
                 .trace
-                .iter()
+                .into_iter()
                 .map(|step| {
-                    let (kind, names) = match &step.status {
-                        RuleStatus::Produced(names) => ("produced", names.as_slice()),
-                        RuleStatus::NoMatch => ("no_match", &[][..]),
-                        RuleStatus::Skipped(names) => ("skipped", names.as_slice()),
+                    let (kind, facts) = match step.status {
+                        RuleStatus::Produced(names) => ("produced", names),
+                        RuleStatus::NoMatch => ("no_match", Vec::new()),
+                        RuleStatus::Skipped(names) => ("skipped", names),
                     };
-                    format!(
-                        r#"{}:{{"kind":{},"facts":{}}}"#,
-                        json(step.rule),
-                        json(kind),
-                        list(names.iter().copied())
-                    )
+                    (step.rule, TraceData { kind, facts })
                 })
-                .collect::<Vec<_>>()
-                .join(",");
-            snapshots.push(format!(
-                r#"{{"id":{},"label":{},"inputs":{},"facts":{},"trace":{{{}}}}}"#,
-                json(&case.id),
-                json(&case.label),
-                fact_values(&case.inputs),
-                fact_values(&result.facts),
-                trace
-            ));
+                .collect();
+            snapshots.push(CaseData {
+                id: &case.id,
+                label: &case.label,
+                inputs: fact_values(&case.inputs),
+                facts: fact_values(&result.facts),
+                trace,
+            });
         }
-        let data = format!(
-            r#"{{"title":{},"inputCount":{},"rules":[{}],"edges":[{}],"cases":[{}]}}"#,
-            json(title),
-            self.inputs.len(),
+        let data = script_json(&ViewerData {
+            title,
+            input_count: self.inputs.len(),
             rules,
             edges,
-            snapshots.join(",")
-        );
+            cases: snapshots,
+        })
+        .map_err(|error| Error::Custom(format!("cannot serialize viewer data: {error}")))?;
         // Substitute each slot once, before adding user-controlled data. A value
         // containing a template token must never be interpreted as template syntax.
         let (before, after) = include_str!("viewer.html")
@@ -177,15 +193,16 @@ impl Engine {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
     #[test]
-    fn json_cannot_close_its_script_container() {
-        assert_eq!(
-            json("</script>\"\\\n\t&\u{2028}"),
-            "\"\\u003c/script\\u003e\\\"\\\\\\u000a\\u0009\\u0026\\u2028\""
-        );
-        assert_eq!(json("café 🦀"), "\"café 🦀\"");
+    fn json_round_trips_without_html_or_literal_control_characters() {
+        let text = "</script><!-- INFERRUM_DATA -->\"\\\n\t&\u{2028}\u{2029}\0 café 🦀";
+        let data = script_json(&text).unwrap();
+        assert!(!data.contains(['<', '>', '&', '\u{2028}', '\u{2029}']));
+        assert!(!data.chars().any(char::is_control));
+        assert_eq!(serde_json::from_str::<String>(&data).unwrap(), text);
     }
 }

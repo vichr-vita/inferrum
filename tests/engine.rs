@@ -1,4 +1,5 @@
 //! Public API behavior and graph validation.
+#![allow(clippy::unwrap_used)]
 
 use inferrum::{Engine, Error, Fact, Facts, Rule, RuleStatus};
 use std::sync::{

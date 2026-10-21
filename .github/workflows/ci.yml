@@ -16,12 +16,15 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
           components: rustfmt, clippy
+      - uses: taiki-e/install-action@nextest
       - run: cargo fmt --check
-      - run: cargo test --no-default-features
-      - run: cargo test --all-features --all-targets
-      - run: cargo test --all-features --doc
-      - run: cargo clippy --all-features --all-targets -- -D warnings
-      - run: cargo run --example bonus --features visualization
+      - run: cargo nextest run --locked --profile ci --no-default-features
+      - run: cargo nextest run --locked --profile ci --all-features
+      # Nextest does not run doctests or Criterion's custom benchmark harness.
+      - run: cargo test --locked --all-features --doc
+      - run: cargo bench --locked --all-features --bench engine -- --test
+      - run: cargo clippy --locked --all-features --all-targets -- -D warnings
+      - run: cargo run --locked --example bonus --features visualization
 
   visualization:
     runs-on: ubuntu-latest

@@ -1,4 +1,5 @@
 //! Verify fictional policy outcomes and boundary conditions.
+#![allow(clippy::unwrap_used)]
 
 #[path = "../examples/support/bonus.rs"]
 mod bonus;

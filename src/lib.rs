@@ -3,6 +3,7 @@
 mod engine;
 mod error;
 mod fact;
+mod macros;
 mod rule;
 
 #[cfg(feature = "visualization")]

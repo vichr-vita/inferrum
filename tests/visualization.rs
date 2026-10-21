@@ -1,5 +1,6 @@
 //! Graph exports follow the executable dependencies.
 #![cfg(feature = "visualization")]
+#![allow(clippy::unwrap_used)]
 
 use inferrum::{
     Engine, Error, Fact, Facts, Rule,
@@ -22,7 +23,7 @@ fn html_embeds_evaluated_facts_source_and_trace_as_inert_data() -> Result<(), Er
         ],
     )?;
     let html = engine.to_html(
-        "<title>",
+        "<title> & café 🦀\u{2028}\u{2029}\0 <!-- INFERRUM_DATA -->",
         &[ViewerCase::new(
             "case",
             "A </script> case",
@@ -40,7 +41,60 @@ fn html_embeds_evaluated_facts_source_and_trace_as_inert_data() -> Result<(), Er
     assert!(data.contains(r#""trace":{"copy":{"kind":"produced","facts":["output"]}}"#));
     assert!(data.contains(r#""source":"fn copy() { /* \u003c/script\u003e */ }"#));
     assert!(data.contains(r#""facts":{"output":"\"\u003c/script\u003e"#));
+    let data: serde_json::Value = serde_json::from_str(data).unwrap();
+    assert_eq!(
+        data["title"],
+        "<title> & café 🦀\u{2028}\u{2029}\0 <!-- INFERRUM_DATA -->"
+    );
+    assert_eq!(data["inputCount"], 1);
+    assert_eq!(data["rules"][0]["inputs"][0]["type"], "&str");
+    assert_eq!(data["cases"][0]["label"], "A </script> case");
+    assert_eq!(
+        data["cases"][0]["inputs"]["input"],
+        data["cases"][0]["facts"]["output"]
+    );
     assert!(html.contains("id=\"diagram\""));
+    Ok(())
+}
+
+#[test]
+fn html_serializes_all_trace_outcomes_and_dependency_edges() -> Result<(), Error> {
+    use inferrum::visualization::ViewerCase;
+    const A: Fact<bool> = Fact::new("a");
+    const B: Fact<bool> = Fact::new("b");
+    let engine = Engine::new(
+        [],
+        vec![
+            Rule::new("produced", [], [A.spec()], |_| Facts::one(A, false)),
+            Rule::new("no_match", [A.spec()], [B.spec()], |_| Ok(Facts::new())),
+            Rule::new("skipped", [B.spec()], [], |_| unreachable!("missing input")),
+        ],
+    )?;
+    let html = engine.to_html("Trace", &[ViewerCase::new("case", "Case", Facts::new())])?;
+    let data = html
+        .split("type=\"application/json\">")
+        .nth(1)
+        .unwrap()
+        .split("</script>")
+        .next()
+        .unwrap();
+    let data: serde_json::Value = serde_json::from_str(data).unwrap();
+    assert_eq!(data["cases"][0]["facts"], serde_json::json!({"a": "false"}));
+    assert_eq!(
+        data["cases"][0]["trace"],
+        serde_json::json!({
+            "produced": {"kind": "produced", "facts": ["a"]},
+            "no_match": {"kind": "no_match", "facts": []},
+            "skipped": {"kind": "skipped", "facts": ["b"]},
+        })
+    );
+    assert_eq!(
+        data["edges"],
+        serde_json::json!([
+            {"from": 0, "to": 1, "fact": "a"},
+            {"from": 1, "to": 2, "fact": "b"},
+        ])
+    );
     Ok(())
 }
 
