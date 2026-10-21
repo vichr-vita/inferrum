@@ -86,7 +86,7 @@ for (const width of [320, 390, 844, 1440]) {
     await expect(page.locator('#source-panel')).toHaveAttribute('open', '');
     await expect(page.locator('#source')).toBeVisible();
     await assertNoOverflow(page);
-    if (width < 700) {
+    if (width <= 1100) {
       await expect(page.locator('#diagram')).toBeHidden();
       await expect(page.locator('#rule-list li')).toHaveCount(26);
       await page.locator('#rule-list a').filter({ hasText: /^final_bonus\(\)$/ }).click();
@@ -130,6 +130,74 @@ test('long identifiers and HTML-like values stay readable and inert', async ({ p
     await expect(page.locator('#outputs .fact-value')).toHaveText('18,446,744,073,709,551,615 c');
     await assertNoOverflow(page);
   }
+});
+
+test('C4 rule boxes and fact labels remain legible without overlapping', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(`${viewer}#case=E01&rule=final_bonus`);
+  const data = JSON.parse(await page.locator('#inferrum-data').textContent());
+  await expect(page.locator('.node-type')).toHaveCount(data.rules.length);
+  await expect(page.locator('.edge-label')).toHaveCount(data.edges.length);
+  const layoutErrors = await page.locator('#diagram').evaluate(diagram => {
+    const errors = [];
+    const boxes = [...diagram.querySelectorAll('.rule-node rect')].map(rect => rect.getBBox());
+    for (const node of diagram.querySelectorAll('.rule-node')) {
+      const box = node.querySelector('rect').getBBox();
+      for (const text of node.querySelectorAll('text')) {
+        const b = text.getBBox();
+        if (b.x < box.x + 8 || b.x + b.width > box.x + box.width - 8 || b.y < box.y || b.y + b.height > box.y + box.height) errors.push(text.textContent);
+      }
+    }
+    for (const label of diagram.querySelectorAll('.edge-label')) {
+      const b = label.getBBox();
+      if (boxes.some(box => b.x < box.x + box.width && b.x + b.width > box.x && b.y < box.y + box.height && b.y + b.height > box.y)) errors.push(label.dataset.fact);
+    }
+    return errors;
+  });
+  expect(layoutErrors).toEqual([]);
+  const selected = page.locator('.rule-node[data-rule="final_bonus"]');
+  expect((await selected.locator('.node-description').allTextContents()).join(' ')).toBe(data.rules.find(rule => rule.id === 'final_bonus').requirement);
+  await page.getByRole('button', { name: 'Fit map', exact: true }).click();
+  expect(await page.locator('#diagram-viewport').evaluate(viewport => viewport.scrollWidth <= viewport.clientWidth + 1 && viewport.scrollHeight <= viewport.clientHeight + 1)).toBe(true);
+  await page.getByRole('button', { name: 'Actual size', exact: true }).click();
+  const inView = await selected.evaluate(node => {
+    const box = node.getBoundingClientRect(), viewport = document.querySelector('#diagram-viewport').getBoundingClientRect();
+    return box.left >= viewport.left && box.right <= viewport.right && box.top >= viewport.top && box.bottom <= viewport.bottom;
+  });
+  expect(inView).toBe(true);
+});
+
+test('highlighted arrows flow toward consumers briefly and respect reduced motion', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto(`${viewer}#case=E01&rule=final_bonus`);
+  const motion = await page.locator('.edge.selected').evaluateAll(paths => paths.map(path => {
+    const animation = path.getAnimations()[0];
+    if (!animation) return null;
+    animation.pause();
+    animation.currentTime = 0;
+    const start = getComputedStyle(path).strokeDashoffset;
+    animation.currentTime = 400;
+    const moving = getComputedStyle(path).strokeDashoffset;
+    const timing = animation.effect.getTiming();
+    animation.finish();
+    return { start, moving, duration: timing.duration, iterations: timing.iterations, state: animation.playState };
+  }));
+  expect(motion).toHaveLength(4);
+  for (const arrow of motion) {
+    expect(arrow).not.toBeNull();
+    expect(parseFloat(arrow.moving)).toBeLessThan(parseFloat(arrow.start));
+    expect(arrow.duration * arrow.iterations).toBeGreaterThan(0);
+    expect(arrow.duration * arrow.iterations).toBeLessThanOrEqual(3000);
+    expect(arrow.state).toBe('finished');
+  }
+  expect(await page.locator('.edge:not(.selected)').evaluateAll(paths => paths.every(path => path.getAnimations().length === 0))).toBe(true);
+  await page.selectOption('#rule-select', 'capped_bonus');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect.poll(() => page.evaluate(() => document.getAnimations().length)).toBe(0);
+  await page.selectOption('#rule-select', 'payment_ready');
+  await expect(page.locator('.edge.selected')).toHaveCount(2);
+  expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
 });
 
 test('topology-only and empty rulesets have usable states', async ({ page }) => {

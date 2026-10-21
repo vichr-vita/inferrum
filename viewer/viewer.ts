@@ -1,4 +1,5 @@
 import { Graph, layout, type GraphLabel, type NodeLabel, type EdgeLabel } from '@dagrejs/dagre';
+import { attachDiagramNavigation } from './navigation';
 
 type FactSpec = { name: string; type: string };
 type Rule = { id: string; requirement: string; source: string; inputs: FactSpec[]; outputs: FactSpec[] };
@@ -124,35 +125,76 @@ function renderInspector() {
   renderFacts(required('#outputs', HTMLUListElement), currentRule.outputs, false);
 }
 
-// Lay out once using the largest value summary across cases. Selecting a case
+// Lay out once from wrapped names, descriptions, and fact labels. Selecting a case
 // updates labels and status without moving the graph or resetting keyboard focus.
 const graph = new Graph<GraphLabel, NodeLabel, EdgeLabel>({ multigraph: true });
-graph.setGraph({ rankdir: 'TB', nodesep: 18, ranksep: 46, marginx: 10, marginy: 10 });
+graph.setGraph({ rankdir: 'TB', nodesep: 36, edgesep: 24, ranksep: 76, marginx: 28, marginy: 28 });
 const measure = document.createElement('canvas').getContext('2d');
-if (measure) measure.font = '14px Arial';
-const widthOf = (text: string) => measure?.measureText(text).width ?? text.length * 8;
 const short = (text: string) => Array.from(text).length > 29 ? `${Array.from(text).slice(0, 28).join('')}…` : text;
-function linesFor(text: string) {
-  const characters = Array.from(text);
+const nodeWidth = 280;
+const contentWidth = nodeWidth - 32;
+function widthOf(text: string, font: string) {
+  if (!measure) return Array.from(text).length * 9;
+  measure.font = font;
+  return measure.measureText(text).width;
+}
+
+function valueSummary(text: string) {
+  let label = short(text);
+  while (widthOf(label, '16px Arial') > contentWidth) label = `${Array.from(label).slice(0, -2).join('')}…`;
+  return label;
+}
+
+// Wrap long tokens too, so generated names and fact IDs stay inside their boxes.
+function linesFor(text: string, width: number, font: string) {
   const lines: string[] = [];
-  for (let start = 0; start < characters.length; start += 26) lines.push(characters.slice(start, start + 26).join(''));
+  let line = '';
+  for (const word of text.trim().split(/\s+/)) {
+    if (line && widthOf(`${line} ${word}`, font) <= width) { line += ` ${word}`; continue; }
+    if (line) lines.push(line);
+    line = '';
+    for (const character of word) {
+      if (line && widthOf(line + character, font) > width) { lines.push(line); line = ''; }
+      line += character;
+    }
+  }
+  if (line) lines.push(line);
   return lines;
 }
-const labels = data.rules.map(rule => linesFor(rule.id));
-for (const [index, rule] of data.rules.entries()) {
-  const valueLabels = data.cases.map(snapshot => short(rule.outputs.map(fact => formatted(fact.name, Object.hasOwn(snapshot.facts, fact.name) ? snapshot.facts[fact.name] : undefined)).join(' · ')));
-  const width = Math.max(100, ...[...(labels[index] ?? []), ...valueLabels, 'Not evaluated'].map(widthOf)) + 24;
-  graph.setNode(String(index), { width, height: (labels[index]?.length ?? 1) * 18 + 36 });
+const labels = data.rules.map(rule => ({
+  name: linesFor(`${rule.id}()`, contentWidth, '600 14px monospace'),
+  description: linesFor(rule.requirement || 'No requirement supplied.', contentWidth, '13px Arial'),
+}));
+for (const [index, label] of labels.entries()) {
+  graph.setNode(String(index), { width: nodeWidth, height: 87 + label.name.length * 19 + label.description.length * 18 });
 }
-data.edges.forEach((edge, index) => graph.setEdge(String(edge.from), String(edge.to), {}, String(index)));
+const edgeLabels = data.edges.map(edge => linesFor(edge.fact, 220, '12px monospace'));
+data.edges.forEach((edge, index) => {
+  const lines = edgeLabels[index] ?? [];
+  graph.setEdge(String(edge.from), String(edge.to), {
+    width: Math.max(0, ...lines.map(line => widthOf(line, '12px monospace'))) + 16,
+    height: lines.length * 16 + 10,
+    labelpos: 'c',
+  }, String(index));
+});
 if (data.rules.length) layout(graph);
 
 const nodeElements: { rule: Rule; node: SVGAElement; value: SVGTextElement; title: SVGTitleElement }[] = [];
-const edgeElements: { from: string; to: string; path: SVGPathElement }[] = [];
+const edgeElements: { from: string; to: string; path: SVGPathElement; label: SVGGElement }[] = [];
+const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+let lastAnimatedRoute = '';
+
+function stopEdgeAnimations() {
+  for (const { path } of edgeElements) for (const animation of path.getAnimations()) animation.cancel();
+}
+motionPreference.addEventListener('change', stopEdgeAnimations);
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopEdgeAnimations(); });
 
 function buildDiagram() {
   const bounds = graph.graph();
   diagram.setAttribute('viewBox', `0 0 ${bounds.width ?? 1} ${bounds.height ?? 1}`);
+  diagram.setAttribute('width', String(bounds.width ?? 1));
+  diagram.setAttribute('height', String(bounds.height ?? 1));
   const defs = svg('defs');
   for (const [id, color] of [['arrow', '#888'], ['arrow-selected', '#74dfd0']]) {
     const marker = svg('marker', { id: id ?? '', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse' });
@@ -166,17 +208,33 @@ function buildDiagram() {
     const path = svg('path', { class: 'edge', d: points.map((point, i) => `${i ? 'L' : 'M'}${point.x},${point.y}`).join(' '), 'marker-end': 'url(#arrow)' });
     path.append(svg('title', {}, edge.fact));
     diagram.append(path);
-    edgeElements.push({ from: data.rules[edge.from]?.id ?? '', to: data.rules[edge.to]?.id ?? '', path });
+    const label = svg('g', { class: 'edge-label', 'data-fact': edge.fact });
+    if (geometry?.x !== undefined && geometry.y !== undefined && geometry.width !== undefined && geometry.height !== undefined) {
+      const x = geometry.x, y = geometry.y;
+      label.append(svg('rect', { x: x - geometry.width / 2, y: y - geometry.height / 2, width: geometry.width, height: geometry.height }));
+      for (const [lineIndex, line] of (edgeLabels[index] ?? []).entries()) {
+        label.append(svg('text', { x, y: y - geometry.height / 2 + 17 + lineIndex * 16 }, line));
+      }
+    }
+    edgeElements.push({ from: data.rules[edge.from]?.id ?? '', to: data.rules[edge.to]?.id ?? '', path, label });
   });
+  // Label backgrounds cover crossing connectors, but never the rule boxes.
+  for (const { label } of edgeElements) diagram.append(label);
   data.rules.forEach((rule, index) => {
     const position = graph.node(String(index));
     if (!position || position.x === undefined || position.y === undefined) return;
     const node = svg('a', { class: 'rule-node', tabindex: 0, 'data-rule': rule.id });
     const title = svg('title');
-    const x = position.x, top = position.y - position.height / 2;
-    node.append(title, svg('rect', { x: x - position.width / 2, y: top, width: position.width, height: position.height }));
-    for (const [lineIndex, line] of (labels[index] ?? []).entries()) node.append(svg('text', { x, y: top + 20 + lineIndex * 18 }, line));
-    const value = svg('text', { x, y: top + position.height - 12, class: 'node-value' });
+    const left = position.x - position.width / 2, top = position.y - position.height / 2;
+    const x = left + 16;
+    node.append(title, svg('rect', { x: left, y: top, width: position.width, height: position.height }));
+    node.append(svg('text', { x, y: top + 25, class: 'node-type' }, '[Rule · Rust function]'));
+    const label = labels[index];
+    for (const [lineIndex, line] of (label?.name ?? []).entries()) node.append(svg('text', { x, y: top + 52 + lineIndex * 19, class: 'node-name' }, line));
+    const descriptionTop = top + 52 + (label?.name.length ?? 0) * 19 + 4;
+    for (const [lineIndex, line] of (label?.description ?? []).entries()) node.append(svg('text', { x, y: descriptionTop + lineIndex * 18, class: 'node-description' }, line));
+    node.append(svg('line', { x1: x, x2: left + position.width - 16, y1: top + position.height - 43, y2: top + position.height - 43 }));
+    const value = svg('text', { x, y: top + position.height - 17, class: 'node-value' });
     node.append(value);
     node.addEventListener('click', event => {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -192,6 +250,7 @@ function buildDiagram() {
 }
 
 function render() {
+  const previousRule = currentRule;
   const params = new URLSearchParams(location.hash.slice(1));
   currentCase = caseMap.get(params.get('case') ?? '') ?? data.cases[0];
   currentRule = rules.get(params.get('rule') ?? '') ?? data.rules[0];
@@ -213,23 +272,42 @@ function render() {
     node.setAttribute('aria-label', `${rule.id}, ${status(rule)}`);
     node.setAttribute('aria-current', String(rule === currentRule));
     node.dataset.status = traces.get(rule.id)?.kind ?? 'not_evaluated';
-    value.textContent = short(label);
+    value.textContent = valueSummary(label);
     title.textContent = `${rule.id}\n${rule.requirement}\n${label}`;
   }
-  for (const { from, to, path } of edgeElements) {
+  const animateSelection = canonical !== lastAnimatedRoute;
+  if (animateSelection) stopEdgeAnimations();
+  for (const { from, to, path, label } of edgeElements) {
     const selected = from === currentRule?.id || to === currentRule?.id;
     path.classList.toggle('selected', selected);
+    label.classList.toggle('selected', selected);
     path.setAttribute('marker-end', selected ? 'url(#arrow-selected)' : 'url(#arrow)');
+    // A finite burst shows producer-to-consumer direction, then leaves the map idle.
+    if (selected && animateSelection && !motionPreference.matches && !document.hidden && matchMedia('(min-width: 1101px)').matches) {
+      path.animate([{ strokeDashoffset: '0' }, { strokeDashoffset: '-18' }], { duration: 800, iterations: 3 });
+    }
   }
+  lastAnimatedRoute = canonical;
   list.replaceChildren();
   for (const rule of data.rules) {
     const row = element('li');
     const link = ruleLink(rule.id, `${rule.id}()`);
     link.setAttribute('aria-current', String(rule === currentRule));
-    row.append(link, element('p', status(rule)), element('p', `Reads: ${rule.inputs.map(fact => fact.name).join(', ') || 'none'}`));
+    row.append(element('p', '[Rule · Rust function]', 'rule-type'), link, element('p', rule.requirement || 'No requirement supplied.', 'rule-description'), element('p', status(rule)));
+    const inputs = element('p', '', 'rule-dependencies');
+    inputs.append('Reads: ');
+    rule.inputs.forEach((fact, index) => {
+      if (index) inputs.append(', ');
+      const producer = producers.get(fact.name);
+      inputs.append(producer ? ruleLink(producer, `${fact.name} ← ${producer}()`) : element('span', `${fact.name} · Initial input`));
+    });
+    if (!rule.inputs.length) inputs.append('none');
+    row.append(inputs);
     for (const fact of rule.outputs) row.append(element('p', `→ ${fact.name}: ${formatted(fact.name, facts.get(fact.name))}`));
+    row.classList.toggle('selected', rule === currentRule);
     list.append(row);
   }
+  if (previousRule !== currentRule && !navigation.isFit()) centerSelection();
 }
 
 required('#title', HTMLElement).textContent = data.title;
@@ -242,6 +320,16 @@ ruleSelect.disabled = !data.rules.length;
 required('#empty', HTMLElement).hidden = !!data.rules.length;
 diagram.toggleAttribute('hidden', !data.rules.length);
 buildDiagram();
+required('#diagram-title', HTMLElement).textContent = `${data.title} · rule dependencies`;
+const viewport = required('#diagram-viewport', HTMLDivElement);
+viewport.hidden = !data.rules.length;
+required('#diagram-fit', HTMLButtonElement).disabled = !data.rules.length;
+required('#diagram-actual', HTMLButtonElement).disabled = !data.rules.length;
+const navigation = attachDiagramNavigation(viewport, diagram, required('#diagram-fit', HTMLButtonElement), required('#diagram-actual', HTMLButtonElement));
+function centerSelection() {
+  const selected = nodeElements.find(({ rule }) => rule === currentRule)?.node;
+  navigation.centerOn(selected);
+}
 caseSelect.addEventListener('change', () => select(currentRule?.id, caseSelect.value));
 ruleSelect.addEventListener('change', () => select(ruleSelect.value));
 window.addEventListener('popstate', render);
@@ -259,3 +347,4 @@ required('#copy-link', HTMLButtonElement).addEventListener('click', async event 
 });
 render();
 required('#viewer', HTMLElement).hidden = false;
+navigation.fit();

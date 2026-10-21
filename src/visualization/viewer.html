@@ -27,16 +27,28 @@
     #case-caption { overflow-wrap: anywhere; }
     .workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 330px); gap: 28px; align-items: start; }
     .workspace > *, .toolbar > * { min-width: 0; }
-    #diagram { width: 100%; display: block; height: auto; }
+    .diagram-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 12px; }
+    #diagram-title { font-size: 14px; font-weight: 500; }
+    .diagram-controls { display: flex; gap: 8px; }
+    .diagram-controls button { font-size: 12px; }
+    #diagram-viewport { max-height: 680px; height: min(680px, 75dvh); overflow: auto; border: 1px dashed #666; scrollbar-width: thin; cursor: grab; touch-action: none; user-select: none; overscroll-behavior: contain; }
+    #diagram-viewport.dragging, #diagram-viewport.dragging * { cursor: grabbing; }
+    #diagram { display: block; max-width: none; margin-inline: auto; }
     #diagram .rule-node rect { fill: #000; stroke: #888; stroke-width: 1.4; }
-    #diagram .rule-node text { fill: #fff; text-anchor: middle; font: 14px Arial, sans-serif; }
-    #diagram .rule-node .node-value { font-size: 13px; }
+    #diagram .rule-node text { fill: #fff; font: 13px Arial, sans-serif; }
+    #diagram .rule-node .node-type { fill: #ccc; font-size: 12px; }
+    #diagram .rule-node .node-name { font: 600 14px monospace; }
+    #diagram .rule-node .node-value { font-size: 16px; }
+    #diagram .rule-node line { stroke: #333; }
     #diagram .rule-node[aria-current="true"] rect { stroke: #74dfd0; stroke-width: 2.5; }
-    #diagram .rule-node[aria-current="true"] text { fill: #74dfd0; }
+    #diagram .rule-node[aria-current="true"] .node-value { fill: #74dfd0; }
     #diagram .rule-node[data-status="skipped"] rect { stroke-dasharray: 5 4; }
     #diagram .rule-node[data-status="no_match"] .node-value, #diagram .rule-node[data-status="skipped"] .node-value { fill: #f0b36c; }
-    #diagram .edge { fill: none; stroke: #777; stroke-width: 1.25; }
+    #diagram .edge { fill: none; stroke: #888; stroke-width: 1.25; stroke-dasharray: 5 4; }
     #diagram .edge.selected { stroke: #74dfd0; stroke-width: 2; }
+    #diagram .edge-label rect { fill: #000; }
+    #diagram .edge-label text { fill: #ccc; font: 12px monospace; text-anchor: middle; }
+    #diagram .edge-label.selected text { fill: #74dfd0; }
     #diagram .rule-node:focus { outline: none; }
     #diagram .rule-node:focus rect { stroke: #fff; stroke-width: 3; }
     #inspector { border-left: 1px solid #555; padding-left: 22px; padding-right: 6px; position: sticky; top: 16px; max-height: calc(100dvh - 32px); overflow-y: auto; scrollbar-width: thin; }
@@ -61,21 +73,24 @@
     .dashed { border-style: dashed; }
     .note { font-size: 12px; margin-top: 22px; }
     #rule-list { list-style: none; padding: 0; margin: 0; display: none; }
-    #rule-list li { border-bottom: 1px solid #444; padding: 12px 0; }
-    #rule-list a { display: block; min-height: 44px; padding: 8px 0; }
+    #rule-list li { border: 1px solid #888; padding: 14px; margin-bottom: 16px; }
+    #rule-list li.selected { border: 2px solid #74dfd0; padding: 13px; }
+    #rule-list li > a { display: block; min-height: 44px; padding: 8px 0; font: 600 14px/1.5 ui-monospace, monospace; }
+    #rule-list .rule-dependencies a { display: inline-block; min-height: 44px; padding: 10px 0; }
     #rule-list a[aria-current="true"] { color: #74dfd0; font-weight: 600; }
-    #rule-list a:not([aria-current="true"]) { color: #fff; }
+    #rule-list li > a:not([aria-current="true"]) { color: #fff; }
     #rule-list p { font-size: 12px; margin: 4px 0; overflow-wrap: anywhere; }
+    #rule-list .rule-description { font-size: 13px; margin-bottom: 12px; }
     #empty { padding: 30px 0; }
     [hidden] { display: none !important; }
     @media (max-width: 1100px) { .workspace { grid-template-columns: minmax(0,1fr); } #inspector { border-left: 0; padding: 22px 0 0; border-top: 1px solid #555; position: static; max-height: none; overflow-y: visible; } }
-    @media (max-width: 700px) {
+    @media (max-width: 1100px) {
       .toolbar { grid-template-columns: minmax(0,1fr); gap: 12px; }
       .toolbar button { justify-self: start; }
-      #diagram, .legend { display: none; }
+      #diagram-viewport, .diagram-controls, .legend { display: none; }
       #rule-list { display: block; }
       .workspace { display: flex; flex-direction: column; gap: 24px; }
-      #inspector { order: -1; width: 100%; padding: 0 0 24px; border-top: 0; border-bottom: 1px solid #555; }
+      #inspector { width: 100%; padding: 24px 0 0; border-top: 1px solid #555; }
       #graph-region { width: 100%; }
       #outputs .fact-value { font-size: 24px; }
       .summary { margin-bottom: 20px; }
@@ -95,10 +110,11 @@
     <div class="summary"><span id="case-caption"></span><span id="counts"></span><span id="run-summary"></span></div>
     <div class="workspace">
       <div id="graph-region">
-        <svg id="diagram" xmlns="http://www.w3.org/2000/svg" aria-label="Rule dependency graph" role="group"></svg>
+        <div class="diagram-heading"><h2 id="diagram-title">Rule dependencies</h2><div class="diagram-controls" aria-label="Diagram size"><button id="diagram-fit" type="button" aria-pressed="false">Fit map</button><button id="diagram-actual" type="button" aria-pressed="true">Actual size</button></div></div>
+        <div id="diagram-viewport" tabindex="0" role="region" aria-label="Scrollable rule dependency map" aria-description="Drag to pan. Pinch to zoom. Use plus or minus to zoom, 0 to fit, and 1 for actual size."><svg id="diagram" xmlns="http://www.w3.org/2000/svg" aria-label="Rule dependency graph" role="group"></svg></div>
         <ol id="rule-list" aria-label="Functions in execution order"></ol>
         <p id="empty" hidden>This ruleset has no functions.</p>
-        <div class="legend"><span><i class="box"></i>Function and output</span><span>→ Dependency</span><span><i class="box dashed"></i>Skipped</span></div>
+        <div class="legend"><span><i class="box"></i>Rule function and result</span><span>⇢ Fact flows to consumer</span><span><i class="box dashed"></i>Skipped</span><span>Teal: selected rule and dependencies</span></div>
       </div>
       <aside id="inspector" aria-label="Function inspector" tabindex="-1">
         <h2 id="rule-title"></h2>
